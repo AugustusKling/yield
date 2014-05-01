@@ -1,0 +1,62 @@
+{
+	"queues": [
+		{
+			"class": "yield.input.shipper.ShipperFile",
+			"name": "fileA",
+			"file": "/tmp/fileA"
+		},
+		{
+			"class": "yield.input.network.UDPNetworkSocket",
+			"name": "udp",
+			"port": 9876,
+			"host": "239.255.255.255",
+			"queues": []
+		},
+		{
+			"class": "yield.json.GrokingQueue",
+			"name": "fileA.json",
+			"path": "message",
+			"pattern": "^(?<id>[^ ]+) (?<message>.+)$",
+			"queues": [
+				{
+					"name": "fileA"
+				}
+			]
+		}
+	],
+	"objects": [
+		{
+			"class": "yield.output.Printer",
+			"prefix": "test>",
+			"queues": [
+				{
+					"name": "udp"
+				},
+				{
+					"class": "yield.input.shipper.ShipperFile",
+					"file": "/tmp/fileB"
+				}
+			]
+		},
+		{
+			"class": "yield.output.network.UDPNetworkSocket",
+			"host": "239.255.255.255",
+			"port": 9876,
+			"queues": [
+				{
+					"name": "fileA"
+				}
+			]
+		},
+		{
+			"class": "yield.output.shell.RunCommand",
+			"commandTemplate": ["touch", "/tmp/test${id}"],
+			"directory": "/tmp",
+			"queues": [
+				{
+					"name": "fileA.json"
+				}
+			]
+		}
+	]
+}

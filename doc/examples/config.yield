@@ -1,0 +1,49 @@
+# Include another configuration file.
+:include definitions.yield
+
+# Read file, yielding an event for each line.
+readfile "/tmp/test"
+  # Make event stream available under name f.
+  as f #Text
+# Merge indented lines with previously encountered non-indented line.
+combine #Text
+# Convert the merged lines to JSON.
+toJSON
+  # Call the JSON stream anyEvent.
+  as anyEvent #JSON
+
+# Discard non-matching events in JSON stream.
+where severtiy = hoi
+  # Call the stream of remaining event important.
+  as important #JSON
+
+# Switch context to events from anyEvent stream.
+listen anyEvent
+where severtiy = bä
+  as reallyImportant #JSON
+
+# Create new stream with all events from steam important and reallyImportant.
+union important, reallyImportant #JSON
+# Save those events to a file, one event per line.
+save "output" #Status
+
+toText reallyImportant #Text
+toJSON
+where "error" #Text
+print Found error event:
+
+listen f
+# Print all events in stream f to console.
+print
+
+# Print all named event streams.
+:context
+
+readfile "/tmp/test2"
+union event, f
+print Mix:
+
+listen f
+toJSON
+# Create a file for each event in f to show shell commands.
+shell /tmp touch ${message} 
