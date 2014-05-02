@@ -1,6 +1,10 @@
 package yield.json;
 
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,8 +14,12 @@ import com.fasterxml.jackson.databind.node.TextNode;
 /**
  * Flat JSON object.
  */
-public class JsonEvent {
+public class JsonEvent implements Iterable<Map.Entry<String, String>> {
 	private ObjectNode fields;
+
+	public JsonEvent() {
+		fields = new ObjectMapper().createObjectNode();
+	}
 
 	public JsonEvent(String source) {
 		ObjectMapper mapper = new ObjectMapper();
@@ -54,5 +62,33 @@ public class JsonEvent {
 
 	public ObjectNode getObject() {
 		return fields;
+	}
+
+	@Override
+	public Iterator<Entry<String, String>> iterator() {
+		final Iterator<Entry<String, JsonNode>> fieldsIter = fields.fields();
+		return new Iterator<Map.Entry<String, String>>() {
+
+			@Override
+			public boolean hasNext() {
+				return fieldsIter.hasNext();
+			}
+
+			@Override
+			public Entry<String, String> next() {
+				Entry<String, JsonNode> entry = fieldsIter.next();
+				return new AbstractMap.SimpleEntry<>(entry.getKey(), entry
+						.getValue().textValue());
+			}
+
+			@Override
+			public void remove() {
+				fieldsIter.remove();
+			}
+		};
+	}
+
+	public void remove(String fieldName) {
+		fields.remove(fieldName);
 	}
 }

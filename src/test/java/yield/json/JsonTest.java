@@ -50,4 +50,12 @@ public class JsonTest {
 		Assert.assertEquals("module", occurs.get(0).get("module"));
 		Assert.assertEquals("dummy", occurs.get(1).get("module"));
 	}
+
+	@Test
+	public void testTemplating() {
+		JsonEvent input = new JsonEvent();
+		input.put("test", "abc");
+		String result = new Template("${test} status").apply(input);
+		Assert.assertEquals("abc status", result);
+	}
 }

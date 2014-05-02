@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 
 import yield.config.function.Combine;
 import yield.config.function.Listen;
+import yield.config.function.Mutate;
 import yield.config.function.Print;
 import yield.config.function.ReadFile;
 import yield.config.function.Save;
@@ -26,7 +27,7 @@ public class ConfigReader {
 	/**
 	 * Key for yielder of most recently encountered function.
 	 */
-	public static final String LAST_SOURCE = "event";
+	public static final String LAST_SOURCE = "previous";
 
 	private static final TypedYielder dummyYielder = new TypedYielder(
 			Void.class.getName(), new EventQueue<Object>() {
@@ -71,6 +72,7 @@ public class ConfigReader {
 		functions.put("print", new Print());
 		functions.put("union", new Union());
 		functions.put("shell", new Shell());
+		functions.put("mutate", new Mutate());
 	}
 
 	/**
