@@ -1,3 +1,11 @@
+# yield example configuration.
+#
+# Everything after a # is a comment. Empty lines are ignored.
+# Each function call goes on its own line and functions typically use the resulting queue from the previous function as
+# their input.
+# The configuration serves to construct coupled event queues. Any occurring events will then be processed by the queues
+# in future.
+
 # Include another configuration file.
 :include definitions.yield
 
