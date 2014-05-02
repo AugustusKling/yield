@@ -10,7 +10,7 @@
 :include definitions.yield
 
 # Read file, yielding an event for each line.
-readfile "/tmp/test"
+watch "/tmp/test"
   # Make event stream available under name f.
   as f #Text
 # Merge indented lines with previously encountered non-indented line.
@@ -48,7 +48,7 @@ print
 # Print all named event streams.
 :context
 
-readfile "/tmp/test2"
+watch "/tmp/test2"
 union previous, f
 print Mix:
 
@@ -60,12 +60,14 @@ mutate +test testtext
 mutate +status ${test} status
 # Removes property test.
 mutate -test
-  as shelltest
 # Convert JSON event to text using a template.
 toText ${status} ${message}
 print
 
-listen shelltest
-# Call your-forwarder-executable for each event in f with 2 arguments. Working dir is /tmp.
-shell /tmp your-forwarder-executable ${status} ${message}
+# Watch for modified or added files.
+watch /tmp/images/
+# Define thumbnail name (should use a non-static path).
+mutate +thumbnail thumbnails/thumbnail.jpg
+# Call image converter to create thumbnail. Working dir is /tmp.
+shell /tmp/images/ convert -resize 80x80 -background white -gravity center -extent 80x80 -format jpg -quality 75 ${affectedPath} ${thumbnail}
 print

@@ -1,12 +1,9 @@
 package yield.config;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import yield.core.Main;
-import yield.core.SourceProvider;
 import yield.core.Yielder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,16 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
  * Represents a functions in yield's configuration file.
  */
-public class FunctionConfig {
-	private Class<? extends SourceProvider<?>> providerClass;
-
-	protected FunctionConfig() {
-	}
-
-	protected FunctionConfig(Class<? extends SourceProvider<?>> providerClass) {
-		this.providerClass = providerClass;
-	}
-
+public abstract class FunctionConfig {
 	/**
 	 * @return Type of yielded events. For example
 	 *         {@code java.util.Map<java.lang.String,java.lang.Object>}
@@ -84,28 +72,9 @@ public class FunctionConfig {
 	 *            Currently available yielders.
 	 * @return Yielder of this function.
 	 */
-	@SuppressWarnings("unchecked")
 	@Nonnull
-	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
-		ObjectNode config = parseArguments(args);
-		try {
-			Yielder<?> yielder;
-			if (providerClass != null) {
-				yielder = this.providerClass
-						.getConstructor(Main.class, ObjectNode.class)
-						.newInstance(null, config).getQueue();
-			} else {
-				throw new RuntimeException(
-						"Override getSource(...) when using the FunctionConfig() constructor.");
-			}
-			return new TypedYielder(getResultEventType(),
-					(Yielder<Object>) yielder);
-		} catch (InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException("Failed to construct EventSource.", e);
-		}
-	}
+	public abstract TypedYielder getSource(String args,
+			Map<String, TypedYielder> context);
 
 	/**
 	 * Converts arguments to JSON.

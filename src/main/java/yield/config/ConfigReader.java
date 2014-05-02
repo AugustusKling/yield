@@ -10,12 +10,12 @@ import yield.config.function.Combine;
 import yield.config.function.Listen;
 import yield.config.function.Mutate;
 import yield.config.function.Print;
-import yield.config.function.ReadFile;
 import yield.config.function.Save;
 import yield.config.function.Shell;
 import yield.config.function.ToJson;
 import yield.config.function.ToText;
 import yield.config.function.Union;
+import yield.config.function.Watch;
 import yield.config.function.Where;
 import yield.core.EventListener;
 import yield.core.EventQueue;
@@ -62,7 +62,7 @@ public class ConfigReader {
 		});
 
 		// Default functions.
-		functions.put("readfile", new ReadFile());
+		functions.put("watch", new Watch());
 		functions.put("save", new Save());
 		functions.put("combine", new Combine());
 		functions.put("toJSON", new ToJson());
