@@ -27,9 +27,10 @@ union important, reallyImportant #JSON
 # Save those events to a file, one event per line.
 save "output" #Status
 
-toText reallyImportant #Text
-toJSON
-where "error" #Text
+listen reallyImportant #JSON
+toText #Text
+toJSON #JSON
+where "error" #JSON
 print Found error event:
 
 listen f
@@ -40,10 +41,23 @@ print
 :context
 
 readfile "/tmp/test2"
-union event, f
+union previous, f
 print Mix:
 
 listen f
 toJSON
-# Create a file for each event in f to show shell commands.
-shell /tmp touch ${message} 
+# Add test=testtext property to JSON event.
+mutate +test testtext
+# Add status property with value resulting from template (testtext status).
+mutate +status ${test} status
+# Removes property test.
+mutate -test
+  as shelltest
+# Convert JSON event to text using a template.
+toText ${status} ${message}
+print
+
+listen shelltest
+# Call your-forwarder-executable for each event in f with 2 arguments. Working dir is /tmp.
+shell /tmp your-forwarder-executable ${status} ${message}
+print
