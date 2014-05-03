@@ -66,8 +66,12 @@ print
 
 # Watch for modified or added files.
 watch /tmp/images/
-# Define thumbnail name (should use a non-static path).
-mutate +thumbnail thumbnails/thumbnail.jpg
+# Define thumbnail property by extracting the file name of the path from the directory event.
+grok affectedPath (?<thumbnail>[^/]+)$
+# Redefine thumbnail property to contain an absolute path.
+mutate +thumbnail /tmp/thumbnails/${thumbnail}
 # Call image converter to create thumbnail. Working dir is /tmp.
-shell /tmp/images/ convert -resize 80x80 -background white -gravity center -extent 80x80 -format jpg -quality 75 ${affectedPath} ${thumbnail}
+shell /tmp/images/ convert -resize 80x80 -background black -format jpg -quality 75 ${affectedPath} ${thumbnail}
+# Log conversion.
+toText Created thumbnail for ${affectedPath} at ${thumbnail}.
 print

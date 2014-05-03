@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import yield.config.function.Combine;
+import yield.config.function.Grok;
 import yield.config.function.Listen;
 import yield.config.function.Mutate;
 import yield.config.function.Print;
@@ -73,6 +74,7 @@ public class ConfigReader {
 		functions.put("union", new Union());
 		functions.put("shell", new Shell());
 		functions.put("mutate", new Mutate());
+		functions.put("grok", new Grok());
 	}
 
 	/**

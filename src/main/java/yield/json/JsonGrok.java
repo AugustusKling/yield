@@ -43,8 +43,8 @@ public class JsonGrok implements ValueMapper<JsonEvent, JsonEvent> {
 		String fieldContent = value.get(path);
 		if (fieldContent == null) {
 			// Cannot chop field because field is not in JSON.
-			System.out.println("Unparsable: " + fieldContent);
-			return value;
+			throw new IllegalArgumentException("Instructed to match against "
+					+ path + " but this property is missing in event " + value);
 		} else {
 			Matcher m = p.matcher(fieldContent);
 			if (m.find()) {
