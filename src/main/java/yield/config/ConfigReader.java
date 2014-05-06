@@ -6,7 +6,9 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import yield.config.function.Average;
 import yield.config.function.Combine;
+import yield.config.function.Count;
 import yield.config.function.Delay;
 import yield.config.function.Grok;
 import yield.config.function.Listen;
@@ -79,6 +81,10 @@ public class ConfigReader {
 		functions.put("grok", new Grok());
 		functions.put("delay", new Delay());
 		functions.put("stdin", new Stdin());
+
+		// Aggregators.
+		functions.put("count", new Count());
+		functions.put("average", new Average());
 	}
 
 	/**

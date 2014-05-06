@@ -76,6 +76,12 @@ shell /tmp/images/ convert -resize 80x80 -background black -format jpg -quality 
 toText Created thumbnail for ${affectedPath} at ${thumbnail}.
 print
 
+listen f
+# Calculate rate of events yielded by f within 5 seconds.
+count within 5 sec
+# Print rate.
+print
+
 # Read from console.
 stdin
 # Delay entered lines before passing on.
