@@ -69,7 +69,8 @@ public class AgingOut<T> extends Window<T> {
 				publisher = null;
 			} else {
 				publisher = new CleanupTask();
-				t.schedule(publisher, retention);
+				t.schedule(publisher,
+						(cleanupLimit - events.element().time) / 1000 / 1000);
 			}
 			if (didModify) {
 				// Refresh to inform aggregators about discarded events.
