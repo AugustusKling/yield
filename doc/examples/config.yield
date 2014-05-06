@@ -75,3 +75,10 @@ shell /tmp/images/ convert -resize 80x80 -background black -format jpg -quality 
 # Log conversion.
 toText Created thumbnail for ${affectedPath} at ${thumbnail}.
 print
+
+# Read from console.
+stdin
+# Delay entered lines before passing on.
+delay 5 seconds
+# Print delayed lines after delay passed.
+print delayed:

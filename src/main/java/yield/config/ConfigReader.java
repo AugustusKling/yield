@@ -7,12 +7,14 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import yield.config.function.Combine;
+import yield.config.function.Delay;
 import yield.config.function.Grok;
 import yield.config.function.Listen;
 import yield.config.function.Mutate;
 import yield.config.function.Print;
 import yield.config.function.Save;
 import yield.config.function.Shell;
+import yield.config.function.Stdin;
 import yield.config.function.ToJson;
 import yield.config.function.ToText;
 import yield.config.function.Union;
@@ -75,6 +77,8 @@ public class ConfigReader {
 		functions.put("shell", new Shell());
 		functions.put("mutate", new Mutate());
 		functions.put("grok", new Grok());
+		functions.put("delay", new Delay());
+		functions.put("stdin", new Stdin());
 	}
 
 	/**

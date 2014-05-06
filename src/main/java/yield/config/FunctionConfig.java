@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class FunctionConfig {
 	/**
+	 * Expected event type. Might get more restrictive over time.
+	 * 
 	 * @return Type of yielded events. For example
 	 *         {@code java.util.Map<java.lang.String,java.lang.Object>}
 	 */
