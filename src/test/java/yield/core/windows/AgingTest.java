@@ -26,7 +26,7 @@ public class AgingTest {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws InterruptedException {
 		EventQueue<String> dummies = new EventQueue<>();
 		final TestableAgingWindow testWindow = new TestableAgingWindow();
 		Query<Integer> windowLength = new Query<>(dummies).within(
@@ -40,7 +40,6 @@ public class AgingTest {
 
 					@Override
 					public Aggregator<String, Integer> make() {
-						// TODO Auto-generated method stub
 						return new Count<>();
 					}
 				});
@@ -56,21 +55,11 @@ public class AgingTest {
 		Assert.assertEquals(1, cAgg.get(1).intValue());
 		Assert.assertEquals(2, cAgg.get(2).intValue());
 
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Thread.sleep(3000);
 		dummies.feed("test 3");
 		Assert.assertEquals(3, cAgg.get(3).intValue());
 
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Thread.sleep(3000);
 		Assert.assertEquals(1, cAgg.get(4).intValue());
 	}
 
