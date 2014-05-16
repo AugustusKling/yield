@@ -27,6 +27,11 @@ public class DirectoryEvent {
 	}
 
 	@Override
+	public int hashCode() {
+		return type.hashCode() + affectedPath.hashCode();
+	}
+
+	@Override
 	public String toString() {
 		return type.toString() + " " + affectedPath.toString();
 	}
