@@ -3,12 +3,8 @@ package yield.output.file;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import yield.core.EventListener;
-import yield.core.Main;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Writes event stream to text file.
@@ -18,10 +14,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class FileAppender<Event> implements EventListener<Event> {
 	private Path file;
-
-	public FileAppender(Main main, ObjectNode config) {
-		this.file = Paths.get(config.get("file").textValue());
-	}
 
 	public FileAppender(Path file) {
 		this.file = file;

@@ -14,23 +14,15 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import yield.core.EventSource;
-import yield.core.Main;
 import yield.core.event.FailureEvent;
 import yield.core.event.MetaEvent;
 import yield.core.event.SuccessEvent;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Continuously requests data from an URL and yields download meta data.
  */
 public class Poller extends EventSource<MetaEvent<FileTransfer>> {
 	private ScheduledFuture<?> pollingTask;
-
-	public Poller(Main main, ObjectNode config) throws IOException {
-		startPolling(new URL(config.get("website").textValue()),
-				config.get("interval").longValue());
-	}
 
 	public Poller(URL website, long pollingPeriod) throws IOException {
 		startPolling(website, pollingPeriod);

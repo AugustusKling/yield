@@ -16,9 +16,6 @@ import yield.input.directory.DirectoryWatcher;
 import yield.input.shipper.ShipperFile;
 import yield.json.JsonEvent;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 /**
  * Watches files or directories for modifications.
  * <p>
@@ -61,9 +58,7 @@ public class Watch extends FunctionConfig {
 			}
 		} else {
 			this.resultType = String.class.getName();
-			ObjectNode config = new ObjectMapper().createObjectNode();
-			config.put("file", watchable.toAbsolutePath().toString());
-			ShipperFile watcher = new ShipperFile(null, config);
+			ShipperFile watcher = new ShipperFile(watchable.toAbsolutePath());
 			return wrapResultingYielder(watcher.getQueue());
 		}
 	}

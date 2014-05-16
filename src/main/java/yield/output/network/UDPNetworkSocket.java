@@ -9,9 +9,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import yield.core.EventListener;
-import yield.core.Main;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Forwards events to an UDP socket.
@@ -22,10 +19,9 @@ public class UDPNetworkSocket implements EventListener<String> {
 	private InetAddress group;
 	private int port;
 
-	public UDPNetworkSocket(Main main, ObjectNode config)
-			throws SocketException, UnknownHostException {
-		port = config.get("port").intValue();
-		String target = config.get("host").textValue();
+	public UDPNetworkSocket(String target, int port) throws SocketException,
+			UnknownHostException {
+		this.port = port;
 
 		socket = new DatagramSocket();
 

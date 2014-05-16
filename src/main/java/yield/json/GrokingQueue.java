@@ -2,11 +2,8 @@ package yield.json;
 
 import yield.core.EventListener;
 import yield.core.EventSource;
-import yield.core.Main;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Converts {@link String} to JSON, than extracts matched fragments using a
@@ -21,10 +18,7 @@ public class GrokingQueue extends EventSource<JsonEvent> implements
 	private MappedQueue<String, JsonEvent> jsonParser;
 	private MappedQueue<JsonEvent, JsonEvent> results;
 
-	public GrokingQueue(Main main, ObjectNode config) {
-		String path = config.get("path").textValue();
-		String pattern = config.get("pattern").textValue();
-
+	public GrokingQueue(String path, String pattern) {
 		// Convert String to JSON
 		jsonParser = new MappedQueue<>(new ValueMapper<String, JsonEvent>() {
 			@Override

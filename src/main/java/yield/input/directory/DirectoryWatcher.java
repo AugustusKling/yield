@@ -8,17 +8,13 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
 import yield.core.EventQueue;
 import yield.core.EventSource;
-import yield.core.Main;
 import yield.core.SourceProvider;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Monitors a directory for changes.
@@ -98,12 +94,6 @@ public class DirectoryWatcher implements SourceProvider<DirectoryEvent> {
 	private KeyLoop keyLoop;
 
 	public DirectoryWatcher(Path path) throws IOException {
-		startWatchThread(path);
-	}
-
-	public DirectoryWatcher(Main main, ObjectNode config) throws IOException {
-		Path path = Paths.get(config.get("path").textValue());
-
 		startWatchThread(path);
 	}
 

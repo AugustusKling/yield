@@ -1,5 +1,7 @@
 package yield.config.function;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -10,10 +12,6 @@ import yield.config.TypedYielder;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
 import yield.output.shell.RunCommand;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Shell extends FunctionConfig {
 	@Override
@@ -26,15 +24,12 @@ public class Shell extends FunctionConfig {
 			throw new IllegalArgumentException(
 					"Working directory and command template expected.");
 		}
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectNode config = objectMapper.createObjectNode();
-		config.put("directory", dirAndCommand[0]);
-		ArrayNode commandTemplate = objectMapper.createArrayNode();
+		ArrayList<String> commandTemplate = new ArrayList<>();
 		for (String commandFragment : dirAndCommand[1].split(" ")) {
 			commandTemplate.add(commandFragment);
 		}
-		config.put("commandTemplate", commandTemplate);
-		yielder.bind(new RunCommand(null, config));
+		yielder.bind(new RunCommand(Paths.get(dirAndCommand[0]),
+				commandTemplate));
 		return wrapResultingYielder(yielder);
 	}
 

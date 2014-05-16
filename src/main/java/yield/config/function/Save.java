@@ -1,5 +1,7 @@
 package yield.config.function;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -9,14 +11,10 @@ import yield.config.FunctionConfig;
 import yield.config.TypedYielder;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
-import yield.core.Yielder;
 import yield.core.event.FailureEvent;
 import yield.core.event.MetaEvent;
 import yield.core.event.SuccessEvent;
 import yield.output.file.FileAppender;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Save extends FunctionConfig {
 	@Override
@@ -25,20 +23,17 @@ public class Save extends FunctionConfig {
 		return "Saves to a file with one line per event.";
 	}
 
-	@Override
-	protected ObjectNode parseArguments(String args) {
-		ObjectNode config = new ObjectMapper().createObjectNode();
+	protected Path parsePath(String args) {
 		String filename = args.trim().replaceFirst("^\"", "")
 				.replaceFirst("\"$", "");
-		config.put("file", filename);
-		return config;
+		return Paths.get(filename);
 	}
 
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
-		final FileAppender<Object> appender = new FileAppender<>(null,
-				parseArguments(args));
+		final FileAppender<Object> appender = new FileAppender<>(
+				parsePath(args));
 		MappedQueue<Object, MetaEvent<Object>> input = new MappedQueue<>(
 				new ValueMapper<Object, MetaEvent<Object>>() {
 
@@ -52,8 +47,7 @@ public class Save extends FunctionConfig {
 						}
 					}
 				});
-		((Yielder<Object>) context.get(ConfigReader.LAST_SOURCE).yielder)
-				.bind(input);
+		context.get(ConfigReader.LAST_SOURCE).yielder.bind(input);
 		return wrapResultingYielder(input.getQueue());
 	}
 

@@ -2,17 +2,12 @@ package yield.output.shell;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import yield.core.EventListener;
-import yield.core.Main;
 import yield.json.JsonEvent;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Builds a shell command and executes it asynchronously.
@@ -30,15 +25,11 @@ public class RunCommand implements EventListener<JsonEvent> {
 	 * Command and arguments. Patterns like <code>${fieldName}</code> will be
 	 * replaced with the value of the {@code fieldName} property.
 	 */
-	private ArrayList<String> commandTemplate;
+	private List<String> commandTemplate;
 
-	public RunCommand(Main main, ObjectNode config) {
-		directory = Paths.get(config.get("directory").textValue());
-		commandTemplate = new ArrayList<>();
-		Iterator<JsonNode> elements = config.get("commandTemplate").elements();
-		while (elements.hasNext()) {
-			commandTemplate.add(elements.next().textValue());
-		}
+	public RunCommand(Path directory, List<String> commandTemplate) {
+		this.directory = directory;
+		this.commandTemplate = commandTemplate;
 	}
 
 	@Override

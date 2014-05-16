@@ -4,15 +4,11 @@ import java.io.IOException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import shipper.FileModificationListener;
 import shipper.FileMonitor;
 import yield.core.EventQueue;
-import yield.core.Main;
 import yield.core.SourceProvider;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Monitors a single file for changes. This is basically a tail operation.
@@ -29,11 +25,10 @@ public class ShipperFile implements SourceProvider<String> {
 	/**
 	 * Instantly begins reading file and continuously watches for modifications.
 	 * 
-	 * @param config
-	 *            "file" contains file path to watch.
+	 * @param file
+	 *            Path to watch.
 	 */
-	public ShipperFile(Main main, ObjectNode config) {
-		final Path file = Paths.get(config.get("file").textValue());
+	public ShipperFile(final Path file) {
 		Thread reader = new Thread() {
 			@Override
 			public void run() {

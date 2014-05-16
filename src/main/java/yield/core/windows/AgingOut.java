@@ -6,7 +6,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import yield.core.Window;
 
 /**
@@ -127,7 +126,7 @@ public class AgingOut<T> extends Window<T> {
 
 					@Override
 					public void remove() {
-						throw new NotImplementedException();
+						throw new UnsupportedOperationException();
 					}
 				};
 			}
