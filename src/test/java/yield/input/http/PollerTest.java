@@ -6,7 +6,6 @@ import java.net.URL;
 import org.junit.Test;
 
 import yield.core.Aggregator;
-import yield.core.EventListener;
 import yield.core.Producer;
 import yield.core.Query;
 import yield.core.QueueMapper;
@@ -57,13 +56,7 @@ public class PollerTest {
 			}
 		});
 		poller.bind(new Printer<MetaEvent<FileTransfer>>("got event"));
-		q.getQueue().bind(new EventListener<Double>() {
-
-			@Override
-			public void feed(Double e) {
-				System.out.println("average: " + e);
-			}
-		});
+		q.getQueue().bind(new Printer<Double>("average"));
 		Thread.sleep(15000);
 		poller.abortPolling();
 	}

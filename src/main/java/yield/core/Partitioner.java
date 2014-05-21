@@ -9,7 +9,8 @@ import yield.core.partition.PartitionedEntry;
 /**
  * Spread events from one queue to multiple output queues.
  */
-public class Partitioner<In, Key, Out> implements EventListener<In>,
+public class Partitioner<In, Key, Out> extends BaseControlQueueProvider
+		implements EventListener<In>,
 		SourceProvider<PartitionedEntry<Key, Out>> {
 
 	private final EventQueue<PartitionedEntry<Key, Out>> resultQueue = new EventQueue<>();

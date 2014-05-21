@@ -3,7 +3,11 @@ package yield.core;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class EventSource<Event> implements Yielder<Event> {
+import yield.input.FeedingPrevented;
+import yield.input.ListenerExceutionFailed;
+
+public abstract class EventSource<Event> extends BaseControlQueueProvider
+		implements Yielder<Event> {
 
 	private final Set<EventListener<Event>> listeners = new HashSet<>();
 
@@ -15,9 +19,13 @@ public abstract class EventSource<Event> implements Yielder<Event> {
 			try {
 				l.feed(logEvent);
 			} catch (ClassCastException e) {
-				System.err
-						.println("Due to incompatible types cannot feed to listener "
-								+ l);
+				l.getControlQueue().feed(
+						new FeedingPrevented(new IllegalArgumentException(
+								"Due to incompatible types cannot feed to listener "
+										+ l, e)));
+			} catch (Exception e) {
+				l.getControlQueue().feed(
+						new ListenerExceutionFailed<>(logEvent, e));
 			}
 		}
 	}
@@ -26,4 +34,5 @@ public abstract class EventSource<Event> implements Yielder<Event> {
 	public void bind(EventListener<Event> listener) {
 		listeners.add(listener);
 	}
+
 }

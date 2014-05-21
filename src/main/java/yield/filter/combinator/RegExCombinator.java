@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
+import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
 import yield.core.EventQueue;
 import yield.core.SourceProvider;
@@ -14,8 +15,8 @@ import yield.core.SourceProvider;
  * Merges multiple events into their concatenation. Subsequent events are merged
  * as long as the provided regular expression holds.
  */
-public class RegExCombinator implements SourceProvider<String>,
-		EventListener<String> {
+public class RegExCombinator extends BaseControlQueueProvider implements
+		SourceProvider<String>, EventListener<String> {
 	/**
 	 * Merger.
 	 */

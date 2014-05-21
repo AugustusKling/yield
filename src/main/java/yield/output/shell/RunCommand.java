@@ -5,8 +5,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 
 import yield.core.EventListener;
+import yield.core.EventSource;
+import yield.core.event.FailureEvent;
+import yield.core.event.MetaEvent;
+import yield.core.event.SuccessEvent;
+import yield.input.ListenerExecutionAborted;
 import yield.json.JsonEvent;
 
 /**
@@ -15,7 +21,8 @@ import yield.json.JsonEvent;
  * The command is build by pasting fields from the event into the provided
  * command template.
  */
-public class RunCommand implements EventListener<JsonEvent> {
+public class RunCommand extends EventSource<MetaEvent<String>> implements
+		EventListener<JsonEvent> {
 	/**
 	 * Working directory.
 	 */
@@ -33,13 +40,34 @@ public class RunCommand implements EventListener<JsonEvent> {
 	}
 
 	@Override
-	public void feed(JsonEvent e) {
-		ProcessBuilder pb = new ProcessBuilder(getCommand(e));
+	public void feed(JsonEvent event) {
+		List<String> command = getCommand(event);
+		ProcessBuilder pb = new ProcessBuilder(command);
 		pb.directory(directory.toFile());
 		try {
-			pb.start();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			Process process = pb.start();
+			try (Scanner stdOut = new Scanner(process.getInputStream());
+					Scanner stdErr = new Scanner(process.getErrorStream())) {
+				if (process.waitFor() != 0) {
+					String processOutput = stdErr.useDelimiter("\\A").hasNext() ? stdErr
+							.next() : "";
+					this.feedBoundQueues(new FailureEvent<String>(
+							new RuntimeException("Shell command " + command
+									+ " reported error code "
+									+ process.exitValue() + "\n"
+									+ processOutput)));
+				} else {
+					String processOutput = stdOut.useDelimiter("\\A").hasNext() ? stdOut
+							.next() : "";
+					this.feedBoundQueues(new SuccessEvent<String>(processOutput));
+				}
+			}
+		} catch (IOException e) {
+			feedBoundQueues(new FailureEvent<String>(new Exception(
+					"Cannot execute", e)));
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			this.getControlQueue().feed(new ListenerExecutionAborted());
 		}
 	}
 

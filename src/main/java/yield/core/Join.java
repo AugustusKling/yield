@@ -1,5 +1,6 @@
 package yield.core;
 
+
 /**
  * Combines queues such that an event is yielded which merges the newest events
  * of the input queues.
@@ -13,7 +14,8 @@ package yield.core;
  */
 public abstract class Join<InOne, InTwo, Out> implements SourceProvider<Out>,
 		Joiner<InOne, InTwo, Out> {
-	class LastValue<T> implements EventListener<T> {
+	class LastValue<T> extends BaseControlQueueProvider implements
+			EventListener<T> {
 		T lastValue;
 		boolean hasValue = false;
 

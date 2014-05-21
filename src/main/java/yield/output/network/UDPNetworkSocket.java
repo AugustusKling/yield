@@ -8,12 +8,15 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
+import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
+import yield.input.ListenerExceutionFailed;
 
 /**
  * Forwards events to an UDP socket.
  */
-public class UDPNetworkSocket implements EventListener<String> {
+public class UDPNetworkSocket extends BaseControlQueueProvider implements
+		EventListener<String> {
 
 	private DatagramSocket socket;
 	private InetAddress group;
@@ -35,7 +38,7 @@ public class UDPNetworkSocket implements EventListener<String> {
 		try {
 			socket.send(packet);
 		} catch (IOException e1) {
-			throw new RuntimeException(e1);
+			this.getControlQueue().feed(new ListenerExceutionFailed<>(e, e1));
 		}
 	}
 }

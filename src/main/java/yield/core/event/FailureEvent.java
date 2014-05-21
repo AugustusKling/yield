@@ -19,4 +19,8 @@ public class FailureEvent<Event> implements MetaEvent<Event> {
 		throw e;
 	}
 
+	@Override
+	public String toString() {
+		return e.toString();
+	}
 }

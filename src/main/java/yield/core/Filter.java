@@ -5,8 +5,8 @@ import javax.annotation.Nonnull;
 /**
  * Queue that only forwards matching events.
  */
-public abstract class Filter<LogEvent> implements EventListener<LogEvent>,
-		SourceProvider<LogEvent> {
+public abstract class Filter<LogEvent> extends BaseControlQueueProvider
+		implements EventListener<LogEvent>, SourceProvider<LogEvent> {
 	@Nonnull
 	private final EventQueue<LogEvent> queue;
 

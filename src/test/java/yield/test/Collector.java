@@ -3,9 +3,11 @@ package yield.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
 
-public class Collector<Event> implements EventListener<Event> {
+public class Collector<Event> extends BaseControlQueueProvider implements
+		EventListener<Event> {
 	private final List<Event> all = new ArrayList<>();
 
 	@Override

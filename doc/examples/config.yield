@@ -72,8 +72,14 @@ grok affectedPath (?<thumbnail>[^/]+)$
 mutate +thumbnail /tmp/thumbnails/${thumbnail}
 # Call image converter to create thumbnail. Working dir is /tmp.
 shell /tmp/images/ convert -resize 80x80 -background black -format jpg -quality 75 ${affectedPath} ${thumbnail}
+  as conversionResult
 # Log conversion.
+where type = success
 toText Created thumbnail for ${affectedPath} at ${thumbnail}.
+print
+listen conversionResult
+where type = error
+toText Failed to create thumbnail for ${affectedPath}: ${stderr}
 print
 
 listen f

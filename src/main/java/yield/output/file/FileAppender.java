@@ -4,7 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
+import yield.input.ListenerExceutionFailed;
 
 /**
  * Writes event stream to text file.
@@ -12,7 +14,8 @@ import yield.core.EventListener;
  * @param <Event>
  *            Type of incoming events.
  */
-public class FileAppender<Event> implements EventListener<Event> {
+public class FileAppender<Event> extends BaseControlQueueProvider implements
+		EventListener<Event> {
 	private Path file;
 
 	public FileAppender(Path file) {
@@ -24,7 +27,9 @@ public class FileAppender<Event> implements EventListener<Event> {
 		try (FileWriter writer = new FileWriter(file.toFile(), true)) {
 			writer.write(e.toString() + System.lineSeparator());
 		} catch (IOException e1) {
-			throw new RuntimeException("Could not append to file.", e1);
+			this.getControlQueue().feed(
+					new ListenerExceutionFailed<>(e,
+							"Could not append to file.", e1));
 		}
 	}
 

@@ -7,7 +7,8 @@ import java.util.Set;
  * Event store with retention policy. Events are not persisted forever but kept
  * in a sliding, not necessarily ordered or fixed-size, window.
  */
-public abstract class Window<T> implements EventListener<T> {
+public abstract class Window<T> extends BaseControlQueueProvider implements
+		EventListener<T> {
 	private final Set<Aggregator<T, ?>> listeners = new HashSet<>();
 
 	/**

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
 import yield.core.EventQueue;
 import yield.core.SourceProvider;
@@ -18,8 +19,8 @@ import yield.core.SourceProvider;
  * @param <Event>
  *            Type of events.
  */
-public class Pattern<Event> implements EventListener<Event>,
-		SourceProvider<String> {
+public class Pattern<Event> extends BaseControlQueueProvider implements
+		EventListener<Event>, SourceProvider<String> {
 	/**
 	 * Output which publishes all state changes.
 	 */
