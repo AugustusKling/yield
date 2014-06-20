@@ -88,7 +88,7 @@ public abstract class FunctionConfig {
 	 */
 	protected ObjectNode parseArguments(String args) {
 		// TODO Support for escaping.
-		String[] parts = args.split("\\s*=\\s*");
+		String[] parts = args.split("\\s*=\\s*| ");
 		if (parts.length < 2 || parts.length % 2 != 0) {
 			throw new RuntimeException("Failed to parse params " + args);
 		}

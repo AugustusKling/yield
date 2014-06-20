@@ -24,7 +24,7 @@ public class FunctionLoader {
 	@Nonnull
 	public FunctionDefinition load(String args) {
 		Pattern p = Pattern
-				.compile("^\\s*(?<functionName>\\w+)\\s+(?<qualifiedName>(?:\\w+|\\.)+)\\s+[\"]?(?<jar>[^\"]+)[\"]$");
+				.compile("^\\s*(?<functionName>(?:-|\\w)+)\\s+(?<qualifiedName>(?:\\w+|\\.)+)\\s+[\"]?(?<jar>[^\"]+)[\"]$");
 		Matcher m = p.matcher(args);
 		if (m.find()) {
 			// Function definition seem sound, try to load.

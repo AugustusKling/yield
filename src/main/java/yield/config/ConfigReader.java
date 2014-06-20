@@ -144,7 +144,7 @@ public class ConfigReader {
 							"Identation error. Function calls must start at the first character of a line.",
 							configLine);
 				}
-				String name = line.replaceFirst("^(\\w+) .*$", "$1");
+				String name = line.replaceFirst("^((?:-|\\w)+) .*$", "$1");
 				if (functions.containsKey(name)) {
 					FunctionConfig functionConfig = functions.get(name);
 					@Nonnull
