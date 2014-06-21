@@ -13,6 +13,8 @@ import yield.config.function.Delay;
 import yield.config.function.Grok;
 import yield.config.function.Listen;
 import yield.config.function.Mutate;
+import yield.config.function.NetworkListen;
+import yield.config.function.NetworkSend;
 import yield.config.function.Print;
 import yield.config.function.Save;
 import yield.config.function.Shell;
@@ -81,6 +83,8 @@ public class ConfigReader {
 		functions.put("grok", new Grok());
 		functions.put("delay", new Delay());
 		functions.put("stdin", new Stdin());
+		functions.put("network-listen", new NetworkListen());
+		functions.put("network-send", new NetworkSend());
 
 		// Aggregators.
 		functions.put("count", new Count());
