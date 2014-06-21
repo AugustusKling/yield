@@ -88,17 +88,22 @@ public abstract class FunctionConfig {
 	 */
 	protected ObjectNode parseArguments(String args) {
 		// TODO Support for escaping.
-		String[] parts = args.split("\\s*=\\s*| ");
-		if (parts.length < 2 || parts.length % 2 != 0) {
-			throw new RuntimeException("Failed to parse params " + args);
-		}
+
 		ObjectNode config = new ObjectMapper().createObjectNode();
-		for (int i = 1; i <= parts.length; i = i + 2) {
-			String name = parts[i - 1];
-			String value = parts[i];
-			config.put(name, value);
+		if (args.matches("^\\s*$")) {
+			return config;
+		} else {
+			String[] parts = args.split("\\s*=\\s*| ");
+			if (parts.length < 2 || parts.length % 2 != 0) {
+				throw new RuntimeException("Failed to parse params " + args);
+			}
+			for (int i = 1; i <= parts.length; i = i + 2) {
+				String name = parts[i - 1];
+				String value = parts[i];
+				config.put(name, value);
+			}
+			return config;
 		}
-		return config;
 	}
 
 	@Override

@@ -24,7 +24,11 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws IOException {
-		new Main(Paths.get(args[0]));
+		if (args.length != 1) {
+			System.out.println("Usage: java -jar yield.jar config.yield");
+		} else {
+			new Main(Paths.get(args[0]));
+		}
 	}
 
 }
