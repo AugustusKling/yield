@@ -101,7 +101,7 @@ public class ConfigReader {
 	 * @return Amended queues.
 	 */
 	public Map<String, TypedYielder> toQueues(
-			Map<String, TypedYielder> context, ConfigStream lines) {
+			Map<String, TypedYielder> context, Iterable<ConfigLine> lines) {
 		if (!context.containsKey(LAST_SOURCE)) {
 			context.put(LAST_SOURCE, dummyYielder);
 		}

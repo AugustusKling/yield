@@ -33,13 +33,25 @@ public class NetworkSend extends FunctionConfig {
 		ObjectNode parameters = parseArguments(args);
 
 		InputStream ksis;
+		if (!parameters.has("keystore")) {
+			throw new IllegalArgumentException("Missing parameter 'keystore'.");
+		}
 		try {
 			ksis = new FileInputStream(parameters.get("keystore").textValue());
 		} catch (FileNotFoundException e1) {
 			throw new IllegalArgumentException("Cannot read keystore.", e1);
 		}
+		if (!parameters.has("password")) {
+			throw new IllegalArgumentException("Missing parameter 'password'.");
+		}
 		char[] password = parameters.get("password").textValue().toCharArray();
+		if (!parameters.has("host")) {
+			throw new IllegalArgumentException("Missing parameter 'host'.");
+		}
 		String host = parameters.get("host").asText();
+		if (!parameters.has("port")) {
+			throw new IllegalArgumentException("Missing parameter 'port'.");
+		}
 		int port = parameters.get("port").asInt();
 
 		Yielder<String> input = getYielderTypesafe(String.class,
