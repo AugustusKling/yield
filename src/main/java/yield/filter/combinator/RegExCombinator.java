@@ -51,7 +51,7 @@ public class RegExCombinator extends BaseControlQueueProvider implements
 			publisher.cancel();
 		}
 
-		if (p.matcher(e).matches()) {
+		if (collection != null && p.matcher(e).matches()) {
 			// Merge.
 			collection.append(System.lineSeparator());
 			collection.append(e);
