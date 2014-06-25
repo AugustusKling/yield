@@ -24,7 +24,7 @@ public class Combine extends FunctionConfig {
 				ConfigReader.LAST_SOURCE, context);
 		String pattern;
 		if (args.isEmpty()) {
-			pattern = "^\\s+";
+			pattern = "^\\s.*";
 		} else {
 			pattern = args;
 		}
