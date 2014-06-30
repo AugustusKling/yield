@@ -23,11 +23,10 @@ public abstract class FunctionConfig {
 		return "java.lang.Object";
 	}
 
-	@SuppressWarnings("unchecked")
 	@Nonnull
 	protected TypedYielder wrapResultingYielder(
 			Yielder<? extends Object> yielder) {
-		return new TypedYielder(getResultEventType(), (Yielder<Object>) yielder);
+		return TypedYielder.wrap(getResultEventType(), yielder);
 	}
 
 	/**

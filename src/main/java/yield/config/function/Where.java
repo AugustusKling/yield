@@ -1,7 +1,6 @@
 package yield.config.function;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -12,8 +11,6 @@ import yield.core.Filter;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 public class Where extends FunctionConfig {
 	@Override
 	@Nonnull
@@ -23,31 +20,48 @@ public class Where extends FunctionConfig {
 
 	@Override
 	@Nonnull
-	public TypedYielder getSource(final String args,
-			Map<String, TypedYielder> context) {
+	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
 		Yielder<JsonEvent> yielder = getYielderTypesafe(
 				JsonEvent.class.getName(), ConfigReader.LAST_SOURCE, context);
 		Filter<JsonEvent> filter;
+		final boolean isPositive = !args.startsWith("not ");
+		if (!isPositive) {
+			args = args.substring(4);
+		}
 		if (args.contains("=")) {
-			final Entry<String, JsonNode> criterion = parseArguments(args)
-					.fields().next();
-			filter = new Filter<JsonEvent>() {
-
-				@Override
-				protected boolean matches(JsonEvent e) {
-					String value = e.get(criterion.getKey().trim());
-					return value != null
-							&& value.equals(criterion.getValue().textValue()
-									.trim());
+			String[] criterion = args.split("\\s*=\\s*", 2);
+			if (criterion.length != 2) {
+				throw new IllegalArgumentException("Cannot parse arguments.");
+			} else {
+				final String key;
+				if (criterion[0].startsWith("\"")) {
+					key = criterion[0].substring(1).replaceAll("\"$", "")
+							.trim();
+				} else {
+					key = criterion[0];
 				}
-			};
+				final String filterValue;
+				if (criterion[1].startsWith("\"")) {
+					filterValue = criterion[1].substring(1)
+							.replaceAll("\"$", "").trim();
+				} else {
+					filterValue = criterion[1];
+				}
+				filter = new Filter<JsonEvent>() {
+					@Override
+					protected boolean matches(JsonEvent e) {
+						String value = e.get(key);
+						return (value != null && value.equals(filterValue)) == isPositive;
+					}
+				};
+			}
 		} else {
+			final String criterion = args;
 			filter = new Filter<JsonEvent>() {
-
 				@Override
 				protected boolean matches(JsonEvent e) {
-					String value = e.get(args.trim());
-					return value != null;
+					String value = e.get(criterion.trim());
+					return (value != null) == isPositive;
 				}
 			};
 		}
