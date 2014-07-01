@@ -1,8 +1,16 @@
 package yield.config;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+
+import org.codehaus.jparsec.Parser;
+import org.codehaus.jparsec.Parsers;
+import org.codehaus.jparsec.Scanners;
+import org.codehaus.jparsec.Terminals.LongLiteral;
+import org.codehaus.jparsec.Terminals.StringLiteral;
+import org.codehaus.jparsec.functors.Pair;
 
 import yield.core.Yielder;
 
@@ -13,6 +21,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Represents a functions in yield's configuration file.
  */
 public abstract class FunctionConfig {
+	protected Parser<Pair<String, String>> ARGUMENT = Parsers
+			.tuple(Scanners.IDENTIFIER,
+					Scanners.string("=")
+							.next(StringLiteral.DOUBLE_QUOTE_TOKENIZER.or(LongLiteral.TOKENIZER
+									.map(new org.codehaus.jparsec.functors.Map<Long, String>() {
+										@Override
+										public String map(Long from) {
+											return from.toString();
+										}
+									}))));
+	protected Parser<List<Pair<String, String>>> ARGS = ARGUMENT.sepBy(Scanners
+			.string(" "));
+
 	/**
 	 * Expected event type. Might get more restrictive over time.
 	 * 
@@ -86,23 +107,13 @@ public abstract class FunctionConfig {
 	 * @return Parsed arguments as key-value mapping.
 	 */
 	protected ObjectNode parseArguments(String args) {
-		// TODO Support for escaping.
+		List<Pair<String, String>> res = ARGS.parse(args);
 
 		ObjectNode config = new ObjectMapper().createObjectNode();
-		if (args.matches("^\\s*$")) {
-			return config;
-		} else {
-			String[] parts = args.split("\\s*=\\s*| ");
-			if (parts.length < 2 || parts.length % 2 != 0) {
-				throw new RuntimeException("Failed to parse params " + args);
-			}
-			for (int i = 1; i <= parts.length; i = i + 2) {
-				String name = parts[i - 1];
-				String value = parts[i];
-				config.put(name, value);
-			}
-			return config;
+		for (Pair<String, String> p : res) {
+			config.put(p.a, p.b);
 		}
+		return config;
 	}
 
 	@Override

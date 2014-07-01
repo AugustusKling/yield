@@ -4,6 +4,11 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import org.codehaus.jparsec.Parser;
+import org.codehaus.jparsec.Parsers;
+import org.codehaus.jparsec.Scanners;
+import org.codehaus.jparsec.functors.Pair;
+
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.TypedYielder;
@@ -21,52 +26,58 @@ public class Where extends FunctionConfig {
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
+
 		Yielder<JsonEvent> yielder = getYielderTypesafe(
 				JsonEvent.class.getName(), ConfigReader.LAST_SOURCE, context);
-		Filter<JsonEvent> filter;
-		final boolean isPositive = !args.startsWith("not ");
-		if (!isPositive) {
-			args = args.substring(4);
-		}
-		if (args.contains("=")) {
-			String[] criterion = args.split("\\s*=\\s*", 2);
-			if (criterion.length != 2) {
-				throw new IllegalArgumentException("Cannot parse arguments.");
-			} else {
-				final String key;
-				if (criterion[0].startsWith("\"")) {
-					key = criterion[0].substring(1).replaceAll("\"$", "")
-							.trim();
-				} else {
-					key = criterion[0];
-				}
-				final String filterValue;
-				if (criterion[1].startsWith("\"")) {
-					filterValue = criterion[1].substring(1)
-							.replaceAll("\"$", "").trim();
-				} else {
-					filterValue = criterion[1];
-				}
-				filter = new Filter<JsonEvent>() {
-					@Override
-					protected boolean matches(JsonEvent e) {
-						String value = e.get(key);
-						return (value != null && value.equals(filterValue)) == isPositive;
-					}
-				};
-			}
-		} else {
-			final String criterion = args;
-			filter = new Filter<JsonEvent>() {
-				@Override
-				protected boolean matches(JsonEvent e) {
-					String value = e.get(criterion.trim());
-					return (value != null) == isPositive;
-				}
-			};
-		}
+		Filter<JsonEvent> filter = parse(args);
 		yielder.bind(filter);
 		return wrapResultingYielder(filter.getQueue());
+	}
+
+	/**
+	 * @param args
+	 *            Function arguments.
+	 * @return Queue filter.
+	 */
+	protected Filter<JsonEvent> parse(String args) {
+		Parser<Filter<JsonEvent>> filter = Parsers
+				.or(Scanners
+						.string("not ")
+						.next(ARGUMENT)
+						.map(new org.codehaus.jparsec.functors.Map<Pair<String, String>, Filter<JsonEvent>>() {
+
+							@Override
+							public Filter<JsonEvent> map(
+									final Pair<String, String> from) {
+								return new Filter<JsonEvent>() {
+
+									@Override
+									protected boolean matches(JsonEvent e) {
+										String value = e.get(from.a);
+										return (value != null && value
+												.equals(from.b)) == false;
+									}
+								};
+							}
+						}),
+						ARGUMENT.map(new org.codehaus.jparsec.functors.Map<Pair<String, String>, Filter<JsonEvent>>() {
+
+							@Override
+							public Filter<JsonEvent> map(
+									final Pair<String, String> from) {
+								return new Filter<JsonEvent>() {
+
+									@Override
+									protected boolean matches(JsonEvent e) {
+										String value = e.get(from.a);
+										return value != null
+												&& value.equals(from.b);
+									}
+								};
+							}
+						}));
+		return filter.parse(args);
+
 	}
 
 	@Override

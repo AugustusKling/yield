@@ -53,19 +53,26 @@ public class SSLTest {
 		byte[] dst = new byte[5000];
 		int length = streamReader.read(dst);
 		Files.write(tmp, Arrays.copyOf(dst, length));
-		testConfigLine("network-send keystore=" + tmp.toAbsolutePath());
-		testConfigLine("network-send keystore=" + tmp.toAbsolutePath()
-				+ " password=abcdef");
-		testConfigLine("network-send keystore=" + tmp.toAbsolutePath()
-				+ " password=abcdef host=localhost");
+		testConfigLine("network-send keystore=\""
+				+ escape(tmp.toAbsolutePath()) + "\"");
+		testConfigLine("network-send keystore=\""
+				+ escape(tmp.toAbsolutePath()) + "\"" + " password=\"abcdef\"");
+		testConfigLine("network-send keystore=\""
+				+ escape(tmp.toAbsolutePath()) + "\""
+				+ " password=\"abcdef\" host=\"localhost\"");
 		try {
-			testConfigLine("network-send keystore=" + tmp.toAbsolutePath()
-					+ " password=abcdef host=localhost port=8443");
+			testConfigLine("network-send keystore=\""
+					+ escape(tmp.toAbsolutePath()) + "\""
+					+ " password=\"abcdef\" host=\"localhost\" port=8443");
 		} catch (ParseException e) {
 			// Attempt expected to fail since no server started.
 			Assert.assertTrue("Connection attempt made.", e.getCause()
 					.getCause() instanceof ConnectException);
 		}
+	}
+
+	private String escape(Path path) {
+		return path.toString().replace("\"", "\\\"");
 	}
 
 	private void testConfigLine(final String networkInit) {
