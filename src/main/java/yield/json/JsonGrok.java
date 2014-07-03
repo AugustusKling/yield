@@ -35,7 +35,8 @@ public class JsonGrok implements ValueMapper<JsonEvent, JsonEvent> {
 			groupNames.add(mGroups.group(1));
 		}
 
-		p = Pattern.compile(pattern, Pattern.DOTALL);
+		p = Pattern.compile(pattern, Pattern.DOTALL | Pattern.UNICODE_CASE
+				| Pattern.UNICODE_CHARACTER_CLASS);
 	}
 
 	@Override
