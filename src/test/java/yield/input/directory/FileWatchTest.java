@@ -10,8 +10,8 @@ import java.nio.file.StandardWatchEventKinds;
 import org.junit.Assert;
 import org.junit.Test;
 
-import yield.input.directory.DirectoryEvent;
-import yield.input.directory.DirectoryWatcher;
+import yield.config.TypedYielder;
+import yield.config.function.Watch;
 import yield.output.Printer;
 import yield.test.Collector;
 
@@ -48,10 +48,40 @@ public class FileWatchTest {
 				.getLast());
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void readingFileInvalidConstruction() {
+		Watch w = new Watch();
+		w.getSource("", null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void readingFileInvalidConstruction2() {
+		Watch w = new Watch();
+		w.getSource("skip=\"true\"", null);
+	}
+
+	@Test
+	public void readingFileConstruction() throws IOException {
+		Path tmp = Files.createTempFile(null, null);
+		Files.write(tmp, "Line A".getBytes());
+		Watch w = new Watch();
+		TypedYielder ty = w.getSource("\"" + tmp.toAbsolutePath()
+				+ "\" skip=\"false\" once=\"false\"", null);
+		Assert.assertEquals(String.class.getName(), ty.type);
+		awaitPropagation();
+
+		Collector<Object> lines = new Collector<>();
+		ty.yielder.bind(lines);
+		Files.write(tmp, "Line B".getBytes(), StandardOpenOption.APPEND);
+
+		awaitPropagation();
+		Assert.assertEquals("Line B", lines.get(0));
+	}
+
 	private void awaitPropagation() {
 		// Allow for a little delay to propagate the change.
 		try {
-			Thread.sleep(50);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// nothing required.
 		}

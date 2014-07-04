@@ -9,116 +9,89 @@ import shipper.FileModificationListener;
 import shipper.FileMonitor;
 import yield.core.EventQueue;
 import yield.core.SourceProvider;
+import yield.input.ListenerExceutionFailed;
+import yield.input.ListenerExecutionAborted;
 
 /**
  * Monitors a single file for changes. This is basically a tail operation.
  */
 public class ShipperFile implements SourceProvider<String> {
 	private EventQueue<String> queue = new EventQueue<>();
+	private Path file;
 
 	/**
-	 * Creates stale object that needs activation via {@link #readOnce(Path)}.
+	 * Creates stale object that needs activation via {@link #read(Path)}.
+	 * 
+	 * @param file
+	 *            File to watch which holds an event per line.
 	 */
-	public ShipperFile() {
+	public ShipperFile(Path file) {
+		this.file = file;
 	}
 
 	/**
-	 * Instantly begins reading file and continuously watches for modifications.
+	 * Begins reading file and continuously watches for modifications yielding
+	 * an event per line.
 	 * 
-	 * @param file
-	 *            Path to watch.
+	 * @param onePassOnly
+	 *            No more events are yielded once the file has been fully
+	 *            consumed.
+	 * @param skipExisting
+	 *            When {@code true} the first pass over the file is not yielded.
 	 */
-	public ShipperFile(final Path file) {
+	public void read(final boolean onePassOnly, final boolean skipExisting) {
 		Thread reader = new Thread() {
 			@Override
 			public void run() {
+				final FileMonitor m = new FileMonitor();
 				try {
-					final FileMonitor m = new FileMonitor();
 					m.watch(file, Charset.forName("UTF-8"),
 							new FileModificationListener() {
+								private boolean shallFeed = !skipExisting;
 
 								@Override
-								public void noSuchFile(Path arg0) {
+								public void noSuchFile(Path path) {
+									queue.getControlQueue().feed(
+											new NoSuchFile(path));
 								}
 
 								@Override
 								public void lineAdded(Path arg0,
 										String lineContent) {
-									queue.feed(lineContent);
+									if (shallFeed) {
+										queue.feed(lineContent);
+									}
 								}
 
 								@Override
-								public void fileRotated(Path arg0) {
+								public void fileRotated(Path path) {
+									queue.getControlQueue().feed(
+											new FileRotated(path));
 								}
 
 								@Override
-								public void completelyRead(Path arg0) {
+								public void completelyRead(Path path) {
+									queue.getControlQueue().feed(
+											new FileCompletelyRead(path));
+									shallFeed = true;
+									if (onePassOnly) {
+										m.abortWatching();
+									}
 								}
 							});
 				} catch (ClosedByInterruptException e) {
-
+					m.abortWatching();
+					// Let listeners know that no further output is to be
+					// expected.
+					queue.getControlQueue()
+							.feed(new ListenerExecutionAborted());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					queue.getControlQueue().feed(
+							new ListenerExceutionFailed<Path>(file, e));
 				}
 			}
 		};
 		reader.start();
-	}
-
-	/**
-	 * Read a file yielding an event per line. No more events are yielded once
-	 * the file has been fully consumed.
-	 * 
-	 * @param file
-	 *            File which holds an event per line.
-	 */
-	public void readOnce(final Path file) {
-		Thread reader = new Thread() {
-			@Override
-			public void run() {
-				try {
-					final FileMonitor m = new FileMonitor();
-					m.watch(file, Charset.forName("UTF-8"),
-							new FileModificationListener() {
-
-								@Override
-								public void noSuchFile(Path arg0) {
-								}
-
-								@Override
-								public void lineAdded(Path arg0,
-										String lineContent) {
-									queue.feed(lineContent);
-								}
-
-								@Override
-								public void fileRotated(Path arg0) {
-								}
-
-								@Override
-								public void completelyRead(Path arg0) {
-									m.abortWatching();
-								}
-							});
-				} catch (ClosedByInterruptException e) {
-
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		};
-		reader.start();
-		boolean reading = true;
-		while (reading) {
-			try {
-				reader.join();
-				reading = false;
-			} catch (InterruptedException e) {
-				// try again.
-			}
-		}
 	}
 
 	@Override

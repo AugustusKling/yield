@@ -22,10 +22,11 @@ import yield.test.Collector;
 
 public class CombinatorTest {
 	@Test
-	public void testLogFiles() throws IOException {
+	public void testLogFiles() throws IOException, InterruptedException {
 		RegExCombinator combinator = new RegExCombinator(
 				"^\\s+.*|^\\s*$|^Caused by: .*");
-		ShipperFile shipper = new ShipperFile();
+		Path inputFile = Files.createTempFile(null, null);
+		ShipperFile shipper = new ShipperFile(inputFile);
 		shipper.getQueue().bind(combinator);
 
 		MappedQueue<String, JsonEvent> input = new MappedQueue<>(
@@ -41,6 +42,8 @@ public class CombinatorTest {
 				new JsonGrok("message",
 						"^(?<time>[^ ]+) (?<level>\\w+)\\s+\\[(?<module>[^\\]]+)\\] (?<message>.+)$"));
 		input.getQueue().bind(parser);
+
+		// TODO Move to appropriate place.
 		MappedQueue<JsonEvent, JsonEvent> timeGuesser = new MappedQueue<>(
 				new ValueMapper<JsonEvent, JsonEvent>() {
 
@@ -65,21 +68,29 @@ public class CombinatorTest {
 				});
 		parser.getQueue().bind(timeGuesser);
 
+		Collector<JsonEvent> colCombined = new Collector<>();
+		parser.getQueue().bind(colCombined);
+
 		FileAppender<JsonEvent> writer = new FileAppender<JsonEvent>(Files
 				.createTempFile(null, null).toAbsolutePath());
 		parser.getQueue().bind(writer);
 
-		Path inputFile = Files.createTempFile(null, null);
-		shipper.readOnce(inputFile);
 		Files.write(inputFile,
-				"123 INFO [dummy] message".getBytes(StandardCharsets.UTF_8),
+				"123 INFO [dummy] message\n".getBytes(StandardCharsets.UTF_8),
 				StandardOpenOption.APPEND);
 		Files.write(inputFile,
 				" message to be combined".getBytes(StandardCharsets.UTF_8),
 				StandardOpenOption.APPEND);
+		shipper.read(true, false);
+
+		// Wait to allow file writing and reading to happen.
+		Thread.sleep(1500);
+
+		Assert.assertTrue(colCombined.get(0).get("level").equals("INFO"));
+		Assert.assertTrue(colCombined.get(0).get("message")
+				.contains("to be combined"));
 	}
 
-	@Test
 	public void testSimpleJoin() throws IOException {
 		RegExCombinator combinator = new RegExCombinator(
 				"^\\s+.*|^Caused by: .*");

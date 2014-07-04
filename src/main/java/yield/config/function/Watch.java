@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import org.codehaus.jparsec.Parsers;
+import org.codehaus.jparsec.Scanners;
+
 import yield.config.FunctionConfig;
 import yield.config.TypedYielder;
 import yield.core.MappedQueue;
@@ -25,17 +28,67 @@ import yield.json.JsonEvent;
 public class Watch extends FunctionConfig {
 	private String resultType;
 
+	private enum Parameters {
+		/**
+		 * Path to watch.
+		 */
+		path,
+
+		/**
+		 * Skip over existing data when watching files for additions.
+		 */
+		skip,
+
+		/**
+		 * Only read the file one, the terminate this input. Only for files.
+		 */
+		once
+	}
+
+	private class WatchOptions {
+		/**
+		 * Path to watch.
+		 */
+		private String path;
+
+		/**
+		 * Skip over existing data when watching files for additions.
+		 */
+		private boolean skip = true;
+
+		/**
+		 * Only read the file one, the terminate this input. Only for files.
+		 */
+		private boolean once = false;
+	}
+
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
-		String path = args.trim().replaceFirst("^\"", "")
-				.replaceFirst("\"$", "");
-		if (path.isEmpty()) {
+		Map<Parameters, String> parameters = parseArguments(args,
+				Parameters.class);
+		WatchOptions options = new WatchOptions();
+		if (parameters.containsKey(Parameters.path)) {
+			options.path = parameters.get(Parameters.path);
+		} else {
 			throw new IllegalArgumentException(
-					"Path to file or directory needs to be provided.");
+					"Watch target not given. Path to file or directory needs to be provided.");
 		}
-		Path watchable = Paths.get(path);
-		if (watchable.toFile().isDirectory() || path.endsWith("/")) {
+		if (parameters.containsKey(Parameters.skip)) {
+			options.skip = "true".equals(Parsers.or(
+					Scanners.string("true").source(),
+					Scanners.string("false").source()).parse(
+					parameters.get(Parameters.skip)));
+		}
+		if (parameters.containsKey(Parameters.once)) {
+			options.once = "true".equals(Parsers.or(
+					Scanners.string("true").source(),
+					Scanners.string("false").source()).parse(
+					parameters.get(Parameters.once)));
+		}
+
+		Path watchable = Paths.get(options.path);
+		if (watchable.toFile().isDirectory() || options.path.endsWith("/")) {
 			this.resultType = JsonEvent.class.getName();
 			try {
 				DirectoryWatcher watcher = new DirectoryWatcher(watchable);
@@ -59,6 +112,7 @@ public class Watch extends FunctionConfig {
 		} else {
 			this.resultType = String.class.getName();
 			ShipperFile watcher = new ShipperFile(watchable.toAbsolutePath());
+			watcher.read(options.once, options.skip);
 			return wrapResultingYielder(watcher.getQueue());
 		}
 	}
