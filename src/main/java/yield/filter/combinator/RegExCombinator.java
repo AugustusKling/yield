@@ -41,7 +41,8 @@ public class RegExCombinator extends BaseControlQueueProvider implements
 	 *            with the previous event (possibly merger).
 	 */
 	public RegExCombinator(String mergeCriterion) {
-		p = Pattern.compile(mergeCriterion);
+		p = Pattern.compile(mergeCriterion, Pattern.DOTALL
+				| Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS);
 	}
 
 	@Override
