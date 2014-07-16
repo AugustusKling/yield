@@ -3,6 +3,7 @@ package yield.config;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
@@ -13,6 +14,7 @@ import org.codehaus.jparsec.Terminals.LongLiteral;
 import org.codehaus.jparsec.Terminals.StringLiteral;
 import org.codehaus.jparsec.functors.Map2;
 import org.codehaus.jparsec.functors.Pair;
+import org.codehaus.jparsec.pattern.Patterns;
 
 import yield.core.Yielder;
 
@@ -23,8 +25,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Represents a functions in yield's configuration file.
  */
 public abstract class FunctionConfig {
+	/**
+	 * Word character or underscores followed by numbers, word characters, dots
+	 * or underscores.
+	 */
+	private static final Parser<String> IDENTIFIER = Scanners.pattern(
+			Patterns.regex(Pattern.compile("(?:\\w|_)(?:\\w|[0-9_.])*",
+					Pattern.UNICODE_CHARACTER_CLASS)), "identifier").source();
+
+	/**
+	 * Argument name, equals sign and argument value.
+	 */
 	protected Parser<Pair<String, String>> ARGUMENT = Parsers
-			.tuple(Scanners.IDENTIFIER,
+			.tuple(IDENTIFIER.or(StringLiteral.DOUBLE_QUOTE_TOKENIZER),
 					Scanners.string("=")
 							.next(StringLiteral.DOUBLE_QUOTE_TOKENIZER.or(LongLiteral.TOKENIZER
 									.map(new org.codehaus.jparsec.functors.Map<Long, String>() {
@@ -33,6 +46,10 @@ public abstract class FunctionConfig {
 											return from.toString();
 										}
 									}))));
+
+	/**
+	 * Any number of {@link #ARGUMENT}s.
+	 */
 	protected Parser<List<Pair<String, String>>> ARGS = ARGUMENT.sepBy(Scanners
 			.string(" "));
 
