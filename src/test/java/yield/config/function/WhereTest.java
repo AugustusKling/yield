@@ -101,4 +101,37 @@ public class WhereTest {
 		expected.feed(logEvent2);
 		Assert.assertEquals(expected, remaining);
 	}
+
+	@Test
+	public void matches() {
+		JsonEvent context = new JsonEvent();
+		context.put("testvalue", "this is a test");
+		context.put("testpattern", ".*test.*");
+		context.put("testpattern2", ".*nonmatch.*");
+
+		Expr e = new FilterParser()
+				.buildExpression("\"abcdef\" matches \"abc.*\"");
+		Assert.assertTrue((Boolean) e.apply(context).getValue());
+
+		Expr e2 = new FilterParser()
+				.buildExpression("testvalue matches \"this.*\"");
+		Assert.assertTrue((Boolean) e2.apply(context).getValue());
+		Expr e3 = new FilterParser()
+				.buildExpression("testvalue matches \"that.*\"");
+		Assert.assertFalse((Boolean) e3.apply(context).getValue());
+
+		Expr e4 = new FilterParser()
+				.buildExpression("\"testvalue\" matches testpattern");
+		Assert.assertTrue((Boolean) e4.apply(context).getValue());
+		Expr e5 = new FilterParser()
+				.buildExpression("\"testvalue\" matches testpattern2");
+		Assert.assertFalse((Boolean) e5.apply(context).getValue());
+
+		Expr e6 = new FilterParser()
+				.buildExpression("testvalue matches testpattern");
+		Assert.assertTrue((Boolean) e6.apply(context).getValue());
+		Expr e7 = new FilterParser()
+				.buildExpression("testvalue matches testpattern2");
+		Assert.assertFalse((Boolean) e7.apply(context).getValue());
+	}
 }

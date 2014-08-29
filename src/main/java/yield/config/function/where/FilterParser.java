@@ -13,10 +13,10 @@ import org.codehaus.jparsec.functors.Unary;
  * Parses a query string and returns an syntax tree.
  */
 public class FilterParser {
-	private static final Terminals TERMS = Terminals.caseSensitive(
-			new String[] { "contains", "and", "or", "<", "<=", "=", ">=", ">",
-					"(", ")", "lower", "not", "-", "coalesce", "::" },
-			new String[] {});
+	private static final Terminals TERMS = Terminals
+			.caseSensitive(new String[] { "contains", "and", "or", "<", "<=",
+					"=", ">=", ">", "(", ")", "lower", "not", "-", "coalesce",
+					"::", "matches" }, new String[] {});
 
 	private static Parser<?> term(String... names) {
 		return TERMS.token(names);
@@ -105,6 +105,12 @@ public class FilterParser {
 			public Expr map(Expr a, Expr b) {
 				return new ExprBinaryConcat(name(), a, b);
 			}
+		},
+		matches {
+			@Override
+			public Expr map(Expr a, Expr b) {
+				return new ExprBinaryMatches(name(), a, b);
+			}
 		};
 	}
 
@@ -170,6 +176,7 @@ public class FilterParser {
 				.infixl(op("and", Bin.and), 10).infixl(op("or", Bin.or), 10)
 				.infixl(op("::", Bin.concat), 15)
 				.infixl(op("contains", Bin.contains), 20)
+				.infixl(op("matches", Bin.matches), 20)
 				.infixl(op("<", Bin.LT), 20).infixl(op("<=", Bin.LTE), 20)
 				.infixl(op("=", Bin.EQ), 20).infixl(op(">=", Bin.GTE), 20)
 				.infixl(op(">", Bin.GT), 20)
@@ -192,7 +199,7 @@ public class FilterParser {
 		try {
 			return astParser.parse(query);
 		} catch (ParserException e) {
-			throw new IllegalArgumentException("Could only parse quey up to: "
+			throw new IllegalArgumentException("Could only parse query up to: "
 					+ query.subSequence(0, e.getLocation().column), e);
 		}
 	}
