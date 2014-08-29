@@ -7,11 +7,13 @@ import javax.annotation.Nonnull;
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.TypedYielder;
+import yield.config.function.where.Expr;
+import yield.config.function.where.ExprLiteral;
+import yield.config.function.where.FilterParser;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
-import yield.json.Template;
 
 public class Mutate extends FunctionConfig {
 	@Override
@@ -35,11 +37,11 @@ public class Mutate extends FunctionConfig {
 			throw new IllegalArgumentException(
 					"Delete mode cannot have an argument.");
 		}
-		final Template template;
+		final Expr template;
 		if (mode.equals("+")) {
-			template = new Template(parts[1]);
+			template = new FilterParser().buildExpression(parts[1]);
 		} else {
-			template = new Template("");
+			template = null;
 		}
 
 		Yielder<JsonEvent> yielder = getYielderTypesafe(JsonEvent.class,
@@ -51,7 +53,19 @@ public class Mutate extends FunctionConfig {
 					public JsonEvent map(JsonEvent value) {
 						JsonEvent copy = new JsonEvent(value);
 						if (mode.equals("+")) {
-							copy.put(fieldName, template.apply(value));
+							@SuppressWarnings("null")
+							ExprLiteral exprLiteral = template.apply(value);
+							if (!exprLiteral.isUnknown()) {
+								Object evaluated = exprLiteral.getValue();
+								if (evaluated != null) {
+									evaluated = evaluated.toString();
+								}
+								copy.put(fieldName, (String) evaluated);
+							} else {
+								// Discard unknown values for consistency with
+								// JavaScript's stringify.
+								copy.remove(fieldName);
+							}
 						} else {
 							copy.remove(fieldName);
 						}

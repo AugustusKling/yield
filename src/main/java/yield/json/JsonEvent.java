@@ -91,4 +91,17 @@ public class JsonEvent implements Iterable<Map.Entry<String, String>> {
 	public void remove(String fieldName) {
 		fields.remove(fieldName);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || !obj.getClass().equals(getClass())) {
+			return false;
+		}
+		return this.fields.equals(((JsonEvent) obj).fields);
+	}
+
+	@Override
+	public int hashCode() {
+		return fields.hashCode();
+	}
 }

@@ -13,6 +13,9 @@ public class ExprLiteral extends Expr {
 		this.value = value;
 	}
 
+	/**
+	 * Literal that wrap the <i>unknown</i> value.
+	 */
 	public ExprLiteral() {
 		this(Unknown.value);
 	}

@@ -14,10 +14,11 @@ public class ExprBinaryCoalesce extends ExprBinary {
 
 	@Override
 	protected ExprLiteral evaluate(JsonEvent context) {
-		if (expr1.apply(context).isUnknown()) {
+		ExprLiteral result1 = expr1.apply(context);
+		if (result1.isUnknown() || result1.getValue() == null) {
 			return expr2.apply(context);
 		} else {
-			return expr1.apply(context);
+			return result1;
 		}
 	}
 

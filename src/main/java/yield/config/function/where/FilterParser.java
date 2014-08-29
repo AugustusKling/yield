@@ -15,7 +15,7 @@ import org.codehaus.jparsec.functors.Unary;
 public class FilterParser {
 	private static final Terminals TERMS = Terminals.caseSensitive(
 			new String[] { "contains", "and", "or", "<", "<=", "=", ">=", ">",
-					"(", ")", "lower", "not", "-", "coalesce" },
+					"(", ")", "lower", "not", "-", "coalesce", "::" },
 			new String[] {});
 
 	private static Parser<?> term(String... names) {
@@ -99,6 +99,12 @@ public class FilterParser {
 			public Expr map(Expr a, Expr b) {
 				return new ExprBinaryCoalesce(name(), a, b);
 			}
+		},
+		concat {
+			@Override
+			public Expr map(Expr a, Expr b) {
+				return new ExprBinaryConcat(name(), a, b);
+			}
 		};
 	}
 
@@ -162,6 +168,7 @@ public class FilterParser {
 		Parser<Expr> unit = ref.lazy().between(term("("), term(")")).or(atom);
 		Parser<Expr> parser = new OperatorTable<Expr>()
 				.infixl(op("and", Bin.and), 10).infixl(op("or", Bin.or), 10)
+				.infixl(op("::", Bin.concat), 15)
 				.infixl(op("contains", Bin.contains), 20)
 				.infixl(op("<", Bin.LT), 20).infixl(op("<=", Bin.LTE), 20)
 				.infixl(op("=", Bin.EQ), 20).infixl(op(">=", Bin.GTE), 20)
