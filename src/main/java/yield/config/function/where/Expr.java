@@ -13,7 +13,8 @@ public abstract class Expr {
 	 * values for possibly existing placeholders.
 	 * 
 	 * @param context
-	 *            Placeholder/reference values.
+	 *            Placeholder/reference values. Parameter is ignored if
+	 *            {@link #isContextDependent()} returns {@code false}.
 	 * @return Evaluation result.
 	 */
 	public ExprLiteral apply(JsonEvent context) {
@@ -29,6 +30,23 @@ public abstract class Expr {
 			return Void.class;
 		} else {
 			return value.getClass();
+		}
+	}
+
+	/**
+	 * @return {@code true} if evaluation with another context can influence
+	 *         evaluation result.
+	 */
+	public abstract boolean isContextDependent();
+
+	/**
+	 * @return Simpler version of expression.
+	 */
+	protected Expr reduce() {
+		if (isContextDependent()) {
+			return this;
+		} else {
+			return apply(null);
 		}
 	}
 }

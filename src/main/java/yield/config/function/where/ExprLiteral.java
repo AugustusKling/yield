@@ -40,4 +40,14 @@ public class ExprLiteral extends Expr {
 	public boolean isUnknown() {
 		return value == Unknown.value;
 	}
+
+	@Override
+	public boolean isContextDependent() {
+		return false;
+	}
+
+	@Override
+	protected Expr reduce() {
+		return this;
+	}
 }

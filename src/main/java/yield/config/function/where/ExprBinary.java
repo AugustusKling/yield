@@ -7,12 +7,18 @@ public abstract class ExprBinary extends Expr {
 
 	public ExprBinary(String name, Expr expr1, Expr expr2) {
 		this.name = name;
-		this.expr1 = expr1;
-		this.expr2 = expr2;
+		this.expr1 = expr1.reduce();
+		this.expr2 = expr2.reduce();
 	}
 
 	@Override
 	public String toString() {
 		return "ExprInvoBin-" + name + "(" + expr1 + "," + expr2 + ")";
 	}
+
+	@Override
+	public boolean isContextDependent() {
+		return expr1.isContextDependent() || expr2.isContextDependent();
+	}
+
 }

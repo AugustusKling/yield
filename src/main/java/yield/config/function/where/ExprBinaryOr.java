@@ -23,4 +23,13 @@ public class ExprBinaryOr extends ExprBinary {
 		}
 	}
 
+	@Override
+	public boolean isContextDependent() {
+		if (expr1.isContextDependent() == false && isTrue(expr1, null)) {
+			return false;
+		} else if (expr2.isContextDependent() == false && isTrue(expr2, null)) {
+			return false;
+		}
+		return true;
+	}
 }

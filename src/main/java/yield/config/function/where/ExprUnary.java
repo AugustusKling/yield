@@ -8,7 +8,7 @@ public abstract class ExprUnary extends Expr {
 
 	public ExprUnary(String name, Expr expr) {
 		this.name = name;
-		this.expr = expr;
+		this.expr = expr.reduce();
 	}
 
 	@Override
@@ -20,5 +20,10 @@ public abstract class ExprUnary extends Expr {
 		ExprLiteral literal = expr.apply(context);
 		Object value = literal.getValue();
 		return value;
+	}
+
+	@Override
+	public boolean isContextDependent() {
+		return expr.isContextDependent();
 	}
 }

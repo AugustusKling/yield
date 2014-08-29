@@ -22,4 +22,12 @@ public class ExprBinaryCoalesce extends ExprBinary {
 		}
 	}
 
+	@Override
+	public boolean isContextDependent() {
+		if (!expr1.isContextDependent()) {
+			return false;
+		} else {
+			return expr1.isContextDependent() || expr2.isContextDependent();
+		}
+	}
 }

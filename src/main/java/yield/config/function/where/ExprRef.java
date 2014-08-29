@@ -24,4 +24,14 @@ public class ExprRef extends Expr {
 			return new ExprLiteral();
 		}
 	}
+
+	@Override
+	public boolean isContextDependent() {
+		return true;
+	}
+
+	@Override
+	protected Expr reduce() {
+		return this;
+	}
 }
