@@ -8,12 +8,40 @@ import org.junit.Test;
 
 import yield.config.ConfigReader;
 import yield.config.TypedYielder;
+import yield.config.function.where.Expr;
+import yield.config.function.where.FilterParser;
 import yield.core.EventQueue;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
 import yield.test.Collector;
 
 public class WhereTest {
+
+	@Test
+	public void parse() {
+		String input = "message contains \"test\" and (lower(severity coalesce x)=\"error\" or x<=\"g\")";
+
+		Expr res = new FilterParser().buildExpression(input);
+		// Print AST.
+		// System.out.println(res);
+
+		JsonEvent case1 = new JsonEvent();
+		case1.put("message", "abcdeftestz");
+		case1.put("x", "error");
+		Assert.assertTrue(Boolean.TRUE.equals(res.apply(case1).getValue()));
+
+		JsonEvent case2 = new JsonEvent();
+		case2.put("message", "abcdeftestz");
+		case2.put("severity", "warn");
+		case2.put("x", "b");
+		Assert.assertTrue(Boolean.TRUE.equals(res.apply(case2).getValue()));
+
+		JsonEvent case3 = new JsonEvent();
+		case3.put("message", "abcdeftestz");
+		case3.put("severity", "warn");
+		case3.put("x", "z");
+		Assert.assertFalse(Boolean.TRUE.equals(res.apply(case3).getValue()));
+	}
 
 	@Test
 	public void positiveEquals() throws Exception {
@@ -53,11 +81,11 @@ public class WhereTest {
 		Map<String, TypedYielder> context = new HashMap<>();
 		context.put(ConfigReader.LAST_SOURCE, input);
 
-		TypedYielder positiveEqualsFilter = where.getSource(
-				"not x=\"match test\"", context);
+		TypedYielder negEqualsFilter = where.getSource(
+				"not (x=\"match test\")", context);
 
 		Collector<JsonEvent> remaining = new Collector<>();
-		Yielder<JsonEvent> filtered = positiveEqualsFilter
+		Yielder<JsonEvent> filtered = negEqualsFilter
 				.getTypesafe(JsonEvent.class.getName());
 		filtered.bind(remaining);
 

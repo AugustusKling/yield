@@ -4,14 +4,11 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import org.codehaus.jparsec.Parser;
-import org.codehaus.jparsec.Parsers;
-import org.codehaus.jparsec.Scanners;
-import org.codehaus.jparsec.functors.Pair;
-
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.TypedYielder;
+import yield.config.function.where.Expr;
+import yield.config.function.where.FilterParser;
 import yield.core.Filter;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
@@ -40,43 +37,23 @@ public class Where extends FunctionConfig {
 	 * @return Queue filter.
 	 */
 	protected Filter<JsonEvent> parse(String args) {
-		Parser<Filter<JsonEvent>> filter = Parsers
-				.or(Scanners
-						.string("not ")
-						.next(ARGUMENT)
-						.map(new org.codehaus.jparsec.functors.Map<Pair<String, String>, Filter<JsonEvent>>() {
+		final Expr expr = new FilterParser().buildExpression(args);
 
-							@Override
-							public Filter<JsonEvent> map(
-									final Pair<String, String> from) {
-								return new Filter<JsonEvent>() {
-
-									@Override
-									protected boolean matches(JsonEvent e) {
-										String value = e.get(from.a);
-										return (value != null && value
-												.equals(from.b)) == false;
-									}
-								};
-							}
-						}),
-						ARGUMENT.map(new org.codehaus.jparsec.functors.Map<Pair<String, String>, Filter<JsonEvent>>() {
-
-							@Override
-							public Filter<JsonEvent> map(
-									final Pair<String, String> from) {
-								return new Filter<JsonEvent>() {
-
-									@Override
-									protected boolean matches(JsonEvent e) {
-										String value = e.get(from.a);
-										return value != null
-												&& value.equals(from.b);
-									}
-								};
-							}
-						}));
-		return filter.parse(args);
+		return new Filter<JsonEvent>() {
+			@Override
+			protected boolean matches(JsonEvent e) {
+				Object res = expr.apply(e).getValue();
+				if (res == null) {
+					throw new IllegalArgumentException(
+							"Filter evaluation did not yield an undefined result.");
+				} else if (res instanceof Boolean) {
+					return ((Boolean) res).booleanValue();
+				} else {
+					throw new IllegalArgumentException(
+							"Filter evaluation did not yield a Boolean result.");
+				}
+			}
+		};
 
 	}
 
