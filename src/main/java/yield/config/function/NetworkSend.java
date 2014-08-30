@@ -32,11 +32,6 @@ public class NetworkSend extends FunctionConfig {
 		if (!parameters.has("keystore")) {
 			throw new IllegalArgumentException("Missing parameter 'keystore'.");
 		}
-		try {
-			ksis = new FileInputStream(parameters.get("keystore").textValue());
-		} catch (FileNotFoundException e1) {
-			throw new IllegalArgumentException("Cannot read keystore.", e1);
-		}
 		if (!parameters.has("password")) {
 			throw new IllegalArgumentException("Missing parameter 'password'.");
 		}
@@ -49,6 +44,11 @@ public class NetworkSend extends FunctionConfig {
 			throw new IllegalArgumentException("Missing parameter 'port'.");
 		}
 		int port = parameters.get("port").asInt();
+		try {
+			ksis = new FileInputStream(parameters.get("keystore").textValue());
+		} catch (FileNotFoundException e1) {
+			throw new IllegalArgumentException("Cannot read keystore.", e1);
+		}
 
 		Yielder<String> input = getYielderTypesafe(String.class,
 				ConfigReader.LAST_SOURCE, context);
