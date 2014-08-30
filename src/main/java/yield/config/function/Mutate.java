@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.config.function.where.Expr;
 import yield.config.function.where.ExprLiteral;
@@ -15,13 +16,8 @@ import yield.core.ValueMapper;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
 
+@ShortDocumentation(text = "Sets or removes properties of JSON events based on templates.")
 public class Mutate extends FunctionConfig {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Sets or removes properties of JSON events based on templates.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {

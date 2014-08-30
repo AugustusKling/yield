@@ -10,18 +10,14 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.queues.DelayedQueue;
 
+@ShortDocumentation(text = "Delays events by the given time.")
 public class Delay extends FunctionConfig {
 
 	private String type;
-
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Delays events by the given time.";
-	}
 
 	@Override
 	@Nonnull

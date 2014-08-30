@@ -7,10 +7,9 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import org.codehaus.jparsec.Parsers;
-import org.codehaus.jparsec.Scanners;
-
 import yield.config.FunctionConfig;
+import yield.config.ParameterMap;
+import yield.config.ParameterMap.Param;
 import yield.config.TypedYielder;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
@@ -28,21 +27,36 @@ import yield.json.JsonEvent;
 public class Watch extends FunctionConfig {
 	private String resultType;
 
-	private enum Parameters {
+	private enum Parameters implements Param {
 		/**
 		 * Path to watch.
 		 */
-		path,
+		path {
+			@Override
+			public Object getDefault() {
+				throw new UnsupportedOperationException();
+			}
+		},
 
 		/**
 		 * Skip over existing data when watching files for additions.
 		 */
-		skip,
+		skip {
+			@Override
+			public Boolean getDefault() {
+				return true;
+			}
+		},
 
 		/**
 		 * Only read the file one, the terminate this input. Only for files.
 		 */
-		once
+		once {
+			@Override
+			public Boolean getDefault() {
+				return false;
+			}
+		}
 	}
 
 	private class WatchOptions {
@@ -54,38 +68,28 @@ public class Watch extends FunctionConfig {
 		/**
 		 * Skip over existing data when watching files for additions.
 		 */
-		private boolean skip = true;
+		private boolean skip = (boolean) Parameters.skip.getDefault();
 
 		/**
 		 * Only read the file one, the terminate this input. Only for files.
 		 */
-		private boolean once = false;
+		private boolean once = (boolean) Parameters.once.getDefault();
 	}
 
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
-		Map<Parameters, String> parameters = parseArguments(args,
+		ParameterMap<Parameters> parameters = parseArguments(args,
 				Parameters.class);
 		WatchOptions options = new WatchOptions();
 		if (parameters.containsKey(Parameters.path)) {
-			options.path = parameters.get(Parameters.path);
+			options.path = parameters.getString(Parameters.path);
 		} else {
 			throw new IllegalArgumentException(
 					"Watch target not given. Path to file or directory needs to be provided.");
 		}
-		if (parameters.containsKey(Parameters.skip)) {
-			options.skip = "true".equals(Parsers.or(
-					Scanners.string("true").source(),
-					Scanners.string("false").source()).parse(
-					parameters.get(Parameters.skip)));
-		}
-		if (parameters.containsKey(Parameters.once)) {
-			options.once = "true".equals(Parsers.or(
-					Scanners.string("true").source(),
-					Scanners.string("false").source()).parse(
-					parameters.get(Parameters.once)));
-		}
+		options.skip = parameters.getBoolean(Parameters.skip);
+		options.once = parameters.getBoolean(Parameters.once);
 
 		Path watchable = Paths.get(options.path);
 		if (watchable.toFile().isDirectory() || options.path.endsWith("/")) {

@@ -6,19 +6,15 @@ import javax.annotation.Nonnull;
 
 import yield.config.AggregateFunctionConfig;
 import yield.config.ConfigReader;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.Aggregator;
 import yield.core.Producer;
 import yield.core.Query;
 import yield.core.Window;
 
+@ShortDocumentation(text = "Calculates rate or number of events.")
 public class Count extends AggregateFunctionConfig<Object> {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Calculates rate or number of events.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(final String args,

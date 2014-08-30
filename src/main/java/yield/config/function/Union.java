@@ -5,10 +5,11 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.EventQueue;
-import yield.core.Yielder;
 
+@ShortDocumentation(text = "Queue that yields events from multiple input queues.")
 public class Union extends FunctionConfig {
 	private String resultType = Object.class.getName();
 
@@ -30,7 +31,7 @@ public class Union extends FunctionConfig {
 					// TODO Should use closest common ancestor instead.
 					resultType = Object.class.getName();
 				}
-				((Yielder<Object>) typedYielder.yielder).bind(queue);
+				typedYielder.yielder.bind(queue);
 			}
 		}
 		return wrapResultingYielder(queue);

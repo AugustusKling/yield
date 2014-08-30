@@ -6,19 +6,15 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.MappedQueue;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
 import yield.json.JsonGrok;
 
+@ShortDocumentation(text = "Uses regular expression with groups against value from JSON event. Matched groups define new properties for the yielded event.")
 public class Grok extends FunctionConfig {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Uses regular expression with groups against value from JSON event. Matched groups define new properties for the yielded event.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {

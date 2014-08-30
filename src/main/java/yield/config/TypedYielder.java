@@ -14,10 +14,14 @@ public class TypedYielder {
 	 */
 	public final String type;
 
+	@Nonnull
 	public final Yielder<Object> yielder;
 
 	public TypedYielder(String type, Yielder<Object> yielder) {
 		this.type = type;
+		if (yielder == null) {
+			throw new IllegalArgumentException("Yielder wasn't provided.");
+		}
 		this.yielder = yielder;
 	}
 
@@ -45,6 +49,7 @@ public class TypedYielder {
 	 * @return Matching {@link Yielder} from {@code context}.
 	 */
 	@SuppressWarnings("unchecked")
+	@Nonnull
 	public <RequiredType> Yielder<RequiredType> getTypesafe(String requiredType) {
 		if (this.type.equals(requiredType)) {
 			return (Yielder<RequiredType>) this.yielder;

@@ -14,18 +14,14 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.input.network.SSLServerSocket;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+@ShortDocumentation(text = "Listens for SSL connections and yields their messages.")
 public class NetworkListen extends FunctionConfig {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Listens for SSL connections and yields their messages.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {

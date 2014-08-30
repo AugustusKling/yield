@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
@@ -13,13 +14,8 @@ import yield.core.Yielder;
 import yield.json.JsonEvent;
 import yield.json.Template;
 
+@ShortDocumentation(text = "Converts to text.")
 public class ToText extends FunctionConfig {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Converts to text.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {

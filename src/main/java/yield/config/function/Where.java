@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.config.function.where.Expr;
 import yield.config.function.where.FilterParser;
@@ -13,13 +14,8 @@ import yield.core.Filter;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
 
+@ShortDocumentation(text = "Filters JSON queue.")
 public class Where extends FunctionConfig {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Filters JSON queue.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {

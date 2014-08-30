@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import yield.config.AggregateFunctionConfig;
 import yield.config.ConfigReader;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.Aggregator;
 import yield.core.Producer;
@@ -14,13 +15,8 @@ import yield.core.Query;
 import yield.core.Window;
 import yield.core.Yielder;
 
+@ShortDocumentation(text = "Arithmetic mean of numeric values.")
 public class Average extends AggregateFunctionConfig<Number> {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Arithmetic mean of numeric values.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(final String args,

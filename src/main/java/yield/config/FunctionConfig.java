@@ -1,6 +1,5 @@
 package yield.config;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -16,6 +15,7 @@ import org.codehaus.jparsec.functors.Map2;
 import org.codehaus.jparsec.functors.Pair;
 import org.codehaus.jparsec.pattern.Patterns;
 
+import yield.config.ParameterMap.Param;
 import yield.core.Yielder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,6 +81,7 @@ public abstract class FunctionConfig {
 	 * @return Matching {@link Yielder} from {@code context}.
 	 */
 	@SuppressWarnings("unchecked")
+	@Nonnull
 	protected <RequiredType> Yielder<RequiredType> getYielderTypesafe(
 			String requiredType, String yielderName,
 			Map<String, TypedYielder> context) {
@@ -97,6 +98,7 @@ public abstract class FunctionConfig {
 	/**
 	 * @see #getYielderTypesafe(String, String, Map)
 	 */
+	@Nonnull
 	protected <RequiredType> Yielder<RequiredType> getYielderTypesafe(
 			Class<RequiredType> requiredType, String yielderName,
 			Map<String, TypedYielder> context) {
@@ -146,7 +148,7 @@ public abstract class FunctionConfig {
 	 *            significant to correlate positional parameters' values.
 	 * @return Parsed arguments as key-value mapping.
 	 */
-	protected <Parameter extends Enum<Parameter>> Map<Parameter, String> parseArguments(
+	protected <Parameter extends Enum<Parameter> & Param> ParameterMap<Parameter> parseArguments(
 			String args, final Class<Parameter> parameters) {
 		return Parsers
 				.sequence(
@@ -156,42 +158,14 @@ public abstract class FunctionConfig {
 								.sepBy(Scanners.string(" ")).optional(),
 						// Named parameters.
 						Scanners.string(" ").optional().next(ARGS).optional(),
-						new Map2<List<String>, List<Pair<String, String>>, Map<Parameter, String>>() {
+						new Map2<List<String>, List<Pair<String, String>>, ParameterMap<Parameter>>() {
 
 							@Override
-							public Map<Parameter, String> map(
+							public ParameterMap<Parameter> map(
 									List<String> positional,
 									List<Pair<String, String>> named) {
-								Parameter[] enumConstants = parameters
-										.getEnumConstants();
-								if (positional.size() > enumConstants.length) {
-									throw new IllegalArgumentException(
-											"More positional parameters provided than defined by the function.");
-								}
-								// Add positional parameters.
-								Map<Parameter, String> ret = new HashMap<>();
-								for (int pos = 0; pos < positional.size(); pos++) {
-									ret.put(enumConstants[pos],
-											positional.get(pos));
-								}
-								// Add named parameters.
-								for (Pair<String, String> p : named) {
-									if (ret.containsKey(p.a)) {
-										throw new IllegalArgumentException(
-												"Parameter " + p.a
-														+ " specified twice.");
-									} else {
-										try {
-											ret.put(Enum.valueOf(parameters,
-													p.a), p.b);
-										} catch (IllegalArgumentException e) {
-											throw new IllegalArgumentException(
-													"Unknown parameter " + p.a,
-													e);
-										}
-									}
-								}
-								return ret;
+								return new ParameterMap<>(parameters,
+										positional, named);
 							}
 
 						}).parse(args);
@@ -199,15 +173,18 @@ public abstract class FunctionConfig {
 
 	@Override
 	public String toString() {
-		if (shortDescription().isEmpty()) {
+		ShortDocumentation shortDocumentation = getClass().getAnnotation(
+				ShortDocumentation.class);
+		if (shortDocumentation == null) {
+			// Annotation is not present.
 			return getClass().getName();
 		} else {
-			return getClass().getName() + " " + shortDescription();
+			String docString = shortDocumentation.text();
+			if (docString == null || docString.isEmpty()) {
+				return getClass().getName();
+			} else {
+				return getClass().getName() + " (" + docString + ")";
+			}
 		}
-	}
-
-	@Nonnull
-	protected String shortDescription() {
-		return "";
 	}
 }

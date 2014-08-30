@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
@@ -18,6 +19,7 @@ import yield.core.event.MetaEvent;
 import yield.json.JsonEvent;
 import yield.output.shell.RunCommand;
 
+@ShortDocumentation(text = "Runs shell command. Fields from JSON serve as command's placeholder values.")
 public class Shell extends FunctionConfig {
 	/**
 	 * Creates a {@link RunCommand} which is used only once so that input event
@@ -78,12 +80,6 @@ public class Shell extends FunctionConfig {
 		public void feedBoundQueues(JsonEvent logEvent) {
 			super.feedBoundQueues(logEvent);
 		}
-	}
-
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Runs shell command. Fields from JSON serve as command's placeholder values.";
 	}
 
 	@Override

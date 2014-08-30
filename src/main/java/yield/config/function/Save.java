@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
@@ -16,13 +17,8 @@ import yield.core.event.MetaEvent;
 import yield.core.event.SuccessEvent;
 import yield.output.file.FileAppender;
 
+@ShortDocumentation(text = "Saves to a file with one line per event.")
 public class Save extends FunctionConfig {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Saves to a file with one line per event.";
-	}
-
 	protected Path parsePath(String args) {
 		String filename = args.trim().replaceFirst("^\"", "")
 				.replaceFirst("\"$", "");

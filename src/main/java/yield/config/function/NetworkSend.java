@@ -14,19 +14,15 @@ import javax.annotation.Nonnull;
 
 import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.Yielder;
 import yield.output.network.SSLSocket;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+@ShortDocumentation(text = "Forwards to network location using SSL.")
 public class NetworkSend extends FunctionConfig {
-	@Override
-	@Nonnull
-	protected String shortDescription() {
-		return "Forwards to network location using SSL.";
-	}
-
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
