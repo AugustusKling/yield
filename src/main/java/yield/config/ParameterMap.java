@@ -5,12 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jparsec.functors.Pair;
 
 import yield.config.ParameterMap.Param;
 
 public class ParameterMap<Parameter extends Enum<Parameter> & Param> {
+	private static final Logger logger = LogManager
+			.getLogger(ParameterMap.class);
+
 	public static interface Param {
 		public Object getDefault();
 	}
@@ -69,8 +73,7 @@ public class ParameterMap<Parameter extends Enum<Parameter> & Param> {
 					}
 				} catch (NoSuchFieldException | SecurityException e1) {
 					docStringOutput = "";
-					Logger.getLogger(ParameterMap.class).error(
-							"Failed to read documentation annotation.", e1);
+					logger.error("Failed to read documentation annotation.", e1);
 				}
 				throw new NoSuchElementException("No value defined for " + key
 						+ docStringOutput + ".");

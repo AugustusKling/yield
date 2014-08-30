@@ -1,4 +1,4 @@
-package yield.input.shipper;
+package yield.input.file;
 
 import java.nio.file.Path;
 

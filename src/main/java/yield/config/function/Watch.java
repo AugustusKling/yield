@@ -1,6 +1,8 @@
 package yield.config.function;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -10,12 +12,13 @@ import javax.annotation.Nonnull;
 import yield.config.FunctionConfig;
 import yield.config.ParameterMap;
 import yield.config.ParameterMap.Param;
+import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
 import yield.input.directory.DirectoryEvent;
 import yield.input.directory.DirectoryWatcher;
-import yield.input.shipper.ShipperFile;
+import yield.input.file.FileInput;
 import yield.json.JsonEvent;
 
 /**
@@ -35,6 +38,14 @@ public class Watch extends FunctionConfig {
 			@Override
 			public Object getDefault() {
 				throw new UnsupportedOperationException();
+			}
+		},
+
+		@ShortDocumentation(text = "Encoding to use when reading contents from monitored files.")
+		encoding {
+			@Override
+			public String getDefault() {
+				return StandardCharsets.UTF_8.name();
 			}
 		},
 
@@ -65,6 +76,8 @@ public class Watch extends FunctionConfig {
 		 */
 		private String path;
 
+		private Charset encoding;
+
 		/**
 		 * Skip over existing data when watching files for additions.
 		 */
@@ -88,6 +101,8 @@ public class Watch extends FunctionConfig {
 			throw new IllegalArgumentException(
 					"Watch target not given. Path to file or directory needs to be provided.");
 		}
+		options.encoding = Charset.forName(parameters
+				.getString(Parameters.encoding));
 		options.skip = parameters.getBoolean(Parameters.skip);
 		options.once = parameters.getBoolean(Parameters.once);
 
@@ -115,8 +130,8 @@ public class Watch extends FunctionConfig {
 			}
 		} else {
 			this.resultType = String.class.getName();
-			ShipperFile watcher = new ShipperFile(watchable.toAbsolutePath());
-			watcher.read(options.once, options.skip);
+			FileInput watcher = new FileInput(watchable.toAbsolutePath());
+			watcher.read(options.once, options.skip, options.encoding);
 			return wrapResultingYielder(watcher.getQueue());
 		}
 	}

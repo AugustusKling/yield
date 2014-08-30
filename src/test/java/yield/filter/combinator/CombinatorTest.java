@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
-import yield.input.shipper.ShipperFile;
+import yield.input.file.FileInput;
 import yield.json.JsonEvent;
 import yield.json.JsonGrok;
 import yield.output.file.FileAppender;
@@ -26,8 +26,8 @@ public class CombinatorTest {
 		RegExCombinator combinator = new RegExCombinator(
 				"^\\s+.*|^\\s*$|^Caused by: .*");
 		Path inputFile = Files.createTempFile(null, null);
-		ShipperFile shipper = new ShipperFile(inputFile);
-		shipper.getQueue().bind(combinator);
+		FileInput fileInput = new FileInput(inputFile);
+		fileInput.getQueue().bind(combinator);
 
 		MappedQueue<String, JsonEvent> input = new MappedQueue<>(
 				new ValueMapper<String, JsonEvent>() {
@@ -81,7 +81,7 @@ public class CombinatorTest {
 		Files.write(inputFile,
 				" message to be combined".getBytes(StandardCharsets.UTF_8),
 				StandardOpenOption.APPEND);
-		shipper.read(true, false);
+		fileInput.read(true, false, StandardCharsets.UTF_8);
 
 		// Wait to allow file writing and reading to happen.
 		Thread.sleep(1500);

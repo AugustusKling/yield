@@ -14,7 +14,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
@@ -25,6 +26,8 @@ import yield.input.ListenerExceutionFailed;
  */
 public class SSLSocket extends BaseControlQueueProvider implements
 		EventListener<String> {
+	private static final Logger logger = LogManager.getLogger(SSLSocket.class);
+
 	private OutputStream os;
 
 	public SSLSocket(String host, int port, InputStream ksis, char[] password)
@@ -44,7 +47,6 @@ public class SSLSocket extends BaseControlQueueProvider implements
 		SSLSocketFactory sslsocketfactory = sslContext.getSocketFactory();
 
 		// Open socket / connect.
-		Logger logger = Logger.getLogger(getClass());
 		logger.debug("Attempting to connection to " + host + ":" + port);
 		Socket clientSslsocket = sslsocketfactory.createSocket(host, port);
 		logger.debug("Connected to server " + host + ":" + port);

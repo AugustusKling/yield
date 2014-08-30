@@ -41,12 +41,7 @@ public class JsonTest {
 		for (String line : inputs) {
 			input.feed(line);
 		}
-		// ShipperFile shipperFile = new ShipperFile();
-		// EventQueue<String> fileLines = shipperFile.getQueue();
-		// fileLines.bind(input);
-		// shipperFile.readOnce(Paths.get("/tmp/testjson"));
 
-		System.out.println(occurs);
 		Assert.assertEquals("module", occurs.get(0).get("module"));
 		Assert.assertEquals("dummy", occurs.get(1).get("module"));
 	}

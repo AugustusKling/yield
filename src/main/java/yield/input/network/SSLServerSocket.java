@@ -17,7 +17,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import yield.core.EventSource;
 
@@ -25,6 +26,9 @@ import yield.core.EventSource;
  * Opens socket to listen for incoming events.
  */
 public class SSLServerSocket extends EventSource<String> {
+	private static final Logger logger = LogManager
+			.getLogger(SSLServerSocket.class);
+
 	/**
 	 * @param port
 	 *            Port to listen on.
@@ -59,7 +63,6 @@ public class SSLServerSocket extends EventSource<String> {
 		// Open socket.
 		final ServerSocket sslServerSocket = sslServerSocketFactory
 				.createServerSocket(port);
-		final Logger logger = Logger.getLogger(getClass());
 		logger.debug("Listening on SSL socket with port " + port);
 
 		Thread t = new Thread() {

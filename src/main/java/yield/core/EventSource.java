@@ -3,13 +3,15 @@ package yield.core;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import yield.input.FeedingPrevented;
 import yield.input.ListenerExceutionFailed;
 
 public abstract class EventSource<Event> extends BaseControlQueueProvider
 		implements Yielder<Event> {
+	private static final Logger feedlogger = LogManager.getLogger("yield.feed");
 
 	private final Set<EventListener<Event>> listeners = new HashSet<>();
 
@@ -21,7 +23,7 @@ public abstract class EventSource<Event> extends BaseControlQueueProvider
 			try {
 				l.feed(logEvent);
 			} catch (ClassCastException e) {
-				Logger.getLogger("yield.error")
+				feedlogger
 						.warn("Failed to feed an event due to incompatible types.",
 								e);
 				l.getControlQueue().feed(
@@ -29,8 +31,7 @@ public abstract class EventSource<Event> extends BaseControlQueueProvider
 								"Due to incompatible types cannot feed to listener "
 										+ l, e)));
 			} catch (Exception e) {
-				Logger.getLogger("yield.error").warn(
-						"Failed to feed an event.", e);
+				feedlogger.warn("Failed to feed an event.", e);
 				l.getControlQueue().feed(
 						new ListenerExceutionFailed<>(logEvent, e));
 			}
