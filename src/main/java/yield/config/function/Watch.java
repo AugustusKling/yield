@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import yield.config.FunctionConfig;
 import yield.config.ParameterMap;
@@ -22,18 +23,15 @@ import yield.input.file.FileInput;
 import yield.json.JsonEvent;
 
 /**
- * Watches files or directories for modifications.
- * <p>
  * Yields either {@link DirectoryEvent}s for directories or {@link String}s for
- * files.
+ * files when content changes.
  */
+@ShortDocumentation(text = "Watches files or directories for modifications.")
 public class Watch extends FunctionConfig {
 	private String resultType;
 
-	private enum Parameters implements Param {
-		/**
-		 * Path to watch.
-		 */
+	private static enum Parameters implements Param {
+		@ShortDocumentation(text = "File or directory to watch.")
 		path {
 			@Override
 			public Object getDefault() {
@@ -49,9 +47,7 @@ public class Watch extends FunctionConfig {
 			}
 		},
 
-		/**
-		 * Skip over existing data when watching files for additions.
-		 */
+		@ShortDocumentation(text = "Skip over existing data when watching files for additions.")
 		skip {
 			@Override
 			public Boolean getDefault() {
@@ -59,9 +55,7 @@ public class Watch extends FunctionConfig {
 			}
 		},
 
-		/**
-		 * Only read the file one, the terminate this input. Only for files.
-		 */
+		@ShortDocumentation(text = "Only read the file once, then terminate this input after the first pass over. Only for files.")
 		once {
 			@Override
 			public Boolean getDefault() {
@@ -139,5 +133,11 @@ public class Watch extends FunctionConfig {
 	@Override
 	protected String getResultEventType() {
 		return this.resultType;
+	}
+
+	@Override
+	@Nullable
+	public <Parameter extends Enum<Parameter> & Param> Class<? extends Param> getParameters() {
+		return Parameters.class;
 	}
 }

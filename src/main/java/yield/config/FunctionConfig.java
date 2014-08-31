@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.codehaus.jparsec.Parser;
 import org.codehaus.jparsec.Parsers;
@@ -187,4 +188,13 @@ public abstract class FunctionConfig {
 			}
 		}
 	}
+
+	/**
+	 * @return Available parameters or {@code null} if function does not have
+	 *         parameters.
+	 */
+	@Nullable
+	public <Parameter extends Enum<Parameter> & Param> Class<? extends Param> getParameters() {
+		return null;
+	};
 }

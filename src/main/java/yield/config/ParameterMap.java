@@ -16,6 +16,11 @@ public class ParameterMap<Parameter extends Enum<Parameter> & Param> {
 			.getLogger(ParameterMap.class);
 
 	public static interface Param {
+		/**
+		 * @return Default value of the parameter.
+		 * @throws UnsupportedOperationException
+		 *             if the parameter does not have a default value
+		 */
 		public Object getDefault();
 	}
 

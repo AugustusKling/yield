@@ -3,9 +3,11 @@ package yield.config;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
+import yield.config.ParameterMap.Param;
 import yield.config.function.Average;
 import yield.config.function.Combine;
 import yield.config.function.Count;
@@ -31,6 +33,20 @@ import yield.core.EventQueue;
  * Parses configuration, creates queues.
  */
 public class ConfigReader {
+	@ShortDocumentation(text = "Loads externally defined functions / plugins.")
+	private final class FunctionLoaderConfig extends FunctionConfig {
+		@SuppressWarnings("null")
+		@Override
+		public @Nonnull TypedYielder getSource(String args,
+				Map<String, TypedYielder> context) {
+
+			FunctionDefinition def = new FunctionLoader().load(args);
+			functions.put(def.functionName, def.functionConfig);
+
+			return dummyYielder;
+		}
+	}
+
 	/**
 	 * Key for yielder of most recently encountered function.
 	 */
@@ -54,19 +70,7 @@ public class ConfigReader {
 		/**
 		 * Loads user defined functions.
 		 */
-		functions.put("function", new FunctionConfig() {
-			@SuppressWarnings("null")
-			@Override
-			public @Nonnull
-			TypedYielder getSource(String args,
-					Map<String, TypedYielder> context) {
-
-				FunctionDefinition def = new FunctionLoader().load(args);
-				functions.put(def.functionName, def.functionConfig);
-
-				return dummyYielder;
-			}
-		});
+		functions.put("function", new FunctionLoaderConfig());
 
 		// Default functions.
 		functions.put("watch", new Watch());
@@ -194,7 +198,7 @@ public class ConfigReader {
 		switch (command) {
 		case "functions":
 			// Prints currently defined functions.
-			System.out.println(functions);
+			printFunctions(functions);
 			return context;
 		case "context":
 			// Prints currently defined queues.
@@ -209,6 +213,103 @@ public class ConfigReader {
 		default:
 			throw new IllegalArgumentException("Command not supported: "
 					+ command);
+		}
+	}
+
+	/**
+	 * Prints listing of all available functions and their parameters along with
+	 * concise documentation.
+	 */
+	private <Parameter extends Enum<Parameter> & Param> void printFunctions(
+			Map<String, FunctionConfig> functions2) {
+		// This should be determined at runtime but all Java solutions see
+		// pretty hacky.
+		int consoleWidth = 200;
+		for (Entry<String, FunctionConfig> func : functions2.entrySet()) {
+			String classDocumentation = func.getKey();
+			ShortDocumentation shortDocumentation = func.getValue().getClass()
+					.getAnnotation(ShortDocumentation.class);
+			if (shortDocumentation != null) {
+				String docString = shortDocumentation.text();
+				if (docString != null && !docString.isEmpty()) {
+					classDocumentation = classDocumentation + ": " + docString;
+				}
+			}
+			printBlock(0, 1, classDocumentation, consoleWidth);
+
+			Class<? extends Parameter> paramClass = (Class<? extends Parameter>) func
+					.getValue().getParameters();
+			if (paramClass != null) {
+				for (Parameter param : paramClass.getEnumConstants()) {
+					String line = "* " + param.name();
+					ShortDocumentation paramDocumentation;
+					try {
+						paramDocumentation = paramClass.getField(param.name())
+								.getAnnotation(ShortDocumentation.class);
+					} catch (NoSuchFieldException | SecurityException e) {
+						// Should never happen because the field is requested
+						// from the enum that provided the parameter.
+						throw new RuntimeException(e);
+					}
+					if (paramDocumentation != null) {
+						String docString = paramDocumentation.text();
+						if (docString != null && !docString.isEmpty()) {
+							line = line + ": " + docString;
+						}
+					}
+					printBlock(1, 2, line, consoleWidth);
+
+					try {
+						printBlock(4, 5, "Default: " + param.getDefault(),
+								consoleWidth);
+					} catch (UnsupportedOperationException e) {
+						// Nothing to print in case no default value exists.
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Prints text with indent and line breaks.
+	 *
+	 * @param firstLineIndent
+	 *            Number of spaces to indent the first line.
+	 * @param lineIndent
+	 *            Number of spaces to indent the following lines.
+	 * @param text
+	 *            Text to print, over multiple line if it exceeds
+	 *            {@code consoleWidth}.
+	 * @param consoleWidth
+	 *            Maximum line length including indents.
+	 */
+	private void printBlock(int firstLineIndent, int lineIndent,
+			@Nonnull String text, int consoleWidth) {
+		if (firstLineIndent < 0 || lineIndent < 0 || consoleWidth < 0) {
+			throw new IllegalArgumentException(
+					"Indents or console width cannot be negative.");
+		}
+		String toPrint;
+		if (firstLineIndent > 0) {
+			toPrint = String.format("%" + firstLineIndent + "s", "") + text;
+		} else {
+			toPrint = text;
+		}
+		System.out.println(toPrint.substring(0,
+				Math.min(toPrint.length(), consoleWidth)));
+		for (int startIndex = consoleWidth; startIndex < toPrint.length(); startIndex = startIndex
+				+ consoleWidth - lineIndent) {
+			String lineIndentChars;
+			if (lineIndent > 0) {
+				lineIndentChars = String.format("%" + lineIndent + "s", "");
+			} else {
+				lineIndentChars = "";
+			}
+			System.out.println(lineIndentChars
+					+ toPrint.substring(
+							startIndex,
+							Math.min(toPrint.length(), startIndex
+									+ consoleWidth - lineIndent)));
 		}
 	}
 }
