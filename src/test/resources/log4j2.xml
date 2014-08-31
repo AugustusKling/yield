@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="yield.log4j2">
+	<Appenders>
+		<Console name="ConsoleLessSevere" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5level %logger{36} - %msg%n" />
+			<LevelRangeFilter maxLevel="WARN"/>
+		</Console>
+		<Console name="ConsoleMoreSevere" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5level %logger{36}:%line - %msg%n" />
+			<LevelRangeFilter minLevel="ERROR"/>
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Root level="WARN">
+			<AppenderRef ref="ConsoleLessSevere" />
+			<AppenderRef ref="ConsoleMoreSevere" />
+		</Root>
+	</Loggers>
+</Configuration>
