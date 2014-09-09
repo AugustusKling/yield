@@ -1,31 +1,27 @@
 package yield.json;
 
-import java.util.Map.Entry;
+import yield.config.function.where.Expr;
+import yield.config.function.where.FilterParser;
 
 /**
- * Template to create {@link String} by replacing placeholders in template
- * {@link String}.
+ * Template to create {@link String} by evaluating context in template
+ * expression. {@link String}.
  */
 public class Template {
-	private String template;
+	private Expr template;
 
 	public Template(String template) {
-		this.template = template;
+		this.template = new FilterParser().buildExpression(template);
 	}
 
 	/**
-	 * Fills in placeholders (for example <code>${the_name}</code>).
+	 * Fills in placeholders.
 	 * 
 	 * @param data
 	 *            Values for the placeholders.
-	 * @return Result from filling in placeholders in template.
+	 * @return Result from evaluating expression.
 	 */
 	public String apply(JsonEvent data) {
-		String result = template;
-		for (Entry<String, String> entry : data) {
-			result = result.replace("${" + entry.getKey() + "}",
-					entry.getValue());
-		}
-		return result;
+		return template.apply(data).getValue().toString();
 	}
 }

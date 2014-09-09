@@ -50,7 +50,7 @@ public class JsonTest {
 	public void testTemplating() {
 		JsonEvent input = new JsonEvent();
 		input.put("test", "abc");
-		String result = new Template("${test} status").apply(input);
+		String result = new Template("test::\" status\"").apply(input);
 		Assert.assertEquals("abc status", result);
 	}
 }
