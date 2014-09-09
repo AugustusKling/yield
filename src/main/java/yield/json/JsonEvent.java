@@ -42,7 +42,7 @@ public class JsonEvent implements Iterable<Map.Entry<String, String>> {
 
 	public String get(String key) {
 		JsonNode jsonNode = fields.get(key);
-		if (jsonNode == null) {
+		if (jsonNode == null || jsonNode.isNull()) {
 			return null;
 		} else if (jsonNode.isTextual()) {
 			return ((TextNode) jsonNode).asText();
