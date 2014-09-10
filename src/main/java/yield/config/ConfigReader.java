@@ -21,6 +21,7 @@ import yield.config.function.Print;
 import yield.config.function.Save;
 import yield.config.function.Shell;
 import yield.config.function.Stdin;
+import yield.config.function.Timestamp;
 import yield.config.function.ToJson;
 import yield.config.function.ToText;
 import yield.config.function.Union;
@@ -85,6 +86,7 @@ public class ConfigReader {
 		functions.put("shell", new Shell());
 		functions.put("mutate", new Mutate());
 		functions.put("grok", new Grok());
+		functions.put("timestamp", new Timestamp());
 		functions.put("delay", new Delay());
 		functions.put("stdin", new Stdin());
 		functions.put("network-listen", new NetworkListen());
