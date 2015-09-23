@@ -18,6 +18,7 @@ import yield.config.function.Mutate;
 import yield.config.function.NetworkListen;
 import yield.config.function.NetworkSend;
 import yield.config.function.Print;
+import yield.config.function.RateLImit;
 import yield.config.function.Save;
 import yield.config.function.Shell;
 import yield.config.function.Stdin;
@@ -91,6 +92,7 @@ public class ConfigReader {
 		functions.put("stdin", new Stdin());
 		functions.put("network-listen", new NetworkListen());
 		functions.put("network-send", new NetworkSend());
+		functions.put("rate-limit", new RateLImit());
 
 		// Aggregators.
 		functions.put("count", new Count());

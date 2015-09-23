@@ -10,7 +10,7 @@ import yield.core.EventQueue;
  */
 public class DelayedQueue<EventType> extends EventQueue<EventType> {
 	/**
-	 * Events awaiting expiry of their timeouts/delays.
+	 * Events awaiting expiration of their timeouts/delays.
 	 */
 	private DelayQueue<DelayedElement<EventType>> events = new DelayQueue<>();
 
