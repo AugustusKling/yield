@@ -27,7 +27,7 @@ where severtiy = hoi
 
 # Switch context to events from anyEvent stream.
 listen anyEvent
-where severtiy = bä
+where severtiy = "bä"
   as reallyImportant #JSON
 
 # Create new stream with all events from steam important and reallyImportant.
@@ -57,29 +57,29 @@ toJSON
 # Add test=testtext property to JSON event.
 mutate +test testtext
 # Add status property with value resulting from template (testtext status).
-mutate +status ${test} status
+mutate +status "${test} status"
 # Removes property test.
 mutate -test
 # Convert JSON event to text using a template.
-toText ${status} ${message}
+toText "${status} ${message}"
 print
 
 # Watch for modified or added files.
-watch /tmp/images/
+watch "/tmp/images/"
 # Define thumbnail property by extracting the file name of the path from the directory event.
 grok affectedPath (?<thumbnail>[^/]+)$
 # Redefine thumbnail property to contain an absolute path.
-mutate +thumbnail /tmp/thumbnails/${thumbnail}
+mutate +thumbnail "/tmp/thumbnails/${thumbnail}"
 # Call image converter to create thumbnail. Working dir is /tmp.
 shell /tmp/images/ convert -resize 80x80 -background black -format jpg -quality 75 ${affectedPath} ${thumbnail}
   as conversionResult
 # Log conversion.
 where type = success
-toText Created thumbnail for ${affectedPath} at ${thumbnail}.
+toText "Created thumbnail for ${affectedPath} at ${thumbnail}."
 print
 listen conversionResult
 where type = error
-toText Failed to create thumbnail for ${affectedPath}: ${stderr}
+toText "Failed to create thumbnail for ${affectedPath}: ${stderr}"
 print
 
 listen f
@@ -92,5 +92,6 @@ print
 stdin
 # Delay entered lines before passing on.
 delay 5 seconds
+rate-limit inactiveDuration=5
 # Print delayed lines after delay passed.
 print delayed:
