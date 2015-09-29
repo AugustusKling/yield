@@ -7,8 +7,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.annotation.Nonnull;
+
 import yield.core.EventListener;
 import yield.core.EventSource;
+import yield.core.EventType;
 import yield.core.event.FailureEvent;
 import yield.core.event.MetaEvent;
 import yield.core.event.SuccessEvent;
@@ -91,6 +94,12 @@ public class RunCommand extends EventSource<MetaEvent<String>> implements
 			command.add(fragment);
 		}
 		return command;
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return new EventType(JsonEvent.class);
 	}
 
 }

@@ -1,5 +1,7 @@
 package yield.input.directory;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,6 +14,8 @@ import org.junit.Test;
 
 import yield.config.TypedYielder;
 import yield.config.function.Watch;
+import yield.core.EventType;
+import yield.core.Yielder;
 import yield.output.Printer;
 import yield.test.Collector;
 
@@ -67,11 +71,13 @@ public class FileWatchTest {
 		Watch w = new Watch();
 		TypedYielder ty = w.getSource("\"" + tmp.toAbsolutePath()
 				+ "\" skip=\"false\" once=\"false\"", null);
-		Assert.assertEquals(String.class.getName(), ty.type);
+		assertTrue(ty.type.isUsableAs(new EventType(String.class)));
 		awaitPropagation();
 
 		Collector<Object> lines = new Collector<>();
-		ty.yielder.bind(lines);
+		@SuppressWarnings("unchecked")
+		Yielder<Object> yielder = ty.yielder;
+		yielder.bind(lines);
 		Files.write(tmp, "Line B".getBytes(), StandardOpenOption.APPEND);
 
 		awaitPropagation();

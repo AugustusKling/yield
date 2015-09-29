@@ -11,14 +11,15 @@ import yield.config.ConfigReader;
 import yield.config.TypedYielder;
 import yield.config.function.Timestamp;
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.Yielder;
 import yield.test.Collector;
 
 public class DateTest {
 	@Test
 	public void compliant() {
-		EventQueue<JsonEvent> inputQueue = new EventQueue<>();
-		TypedYielder input = TypedYielder.wrap(JsonEvent.class.getName(),
+		EventQueue<JsonEvent> inputQueue = new EventQueue<>(JsonEvent.class);
+		TypedYielder input = TypedYielder.wrap(new EventType(JsonEvent.class),
 				inputQueue);
 		Map<String, TypedYielder> context = new HashMap<>();
 		context.put(ConfigReader.LAST_SOURCE, input);
@@ -27,7 +28,7 @@ public class DateTest {
 				"pattern=\"=ISO8601\" source=\"time\" locale=\"en\"", context);
 
 		Collector<JsonEvent> c = new Collector<>();
-		Yielder<JsonEvent> y = ts.getTypesafe(JsonEvent.class.getName());
+		Yielder<JsonEvent> y = ts.getTypesafe(new EventType(JsonEvent.class));
 		y.bind(c);
 
 		JsonEvent in = new JsonEvent();
@@ -41,8 +42,8 @@ public class DateTest {
 
 	@Test
 	public void syslog() {
-		EventQueue<JsonEvent> inputQueue = new EventQueue<>();
-		TypedYielder input = TypedYielder.wrap(JsonEvent.class.getName(),
+		EventQueue<JsonEvent> inputQueue = new EventQueue<>(JsonEvent.class);
+		TypedYielder input = TypedYielder.wrap(new EventType(JsonEvent.class),
 				inputQueue);
 		Map<String, TypedYielder> context = new HashMap<>();
 		context.put(ConfigReader.LAST_SOURCE, input);
@@ -52,7 +53,7 @@ public class DateTest {
 				context);
 
 		Collector<JsonEvent> c = new Collector<>();
-		Yielder<JsonEvent> y = ts.getTypesafe(JsonEvent.class.getName());
+		Yielder<JsonEvent> y = ts.getTypesafe(new EventType(JsonEvent.class));
 		y.bind(c);
 		JsonEvent in2 = new JsonEvent();
 		in2.put("time", "Aug 31 14:33:38");
@@ -67,8 +68,8 @@ public class DateTest {
 
 	@Test
 	public void epochMilliseconds() {
-		EventQueue<JsonEvent> inputQueue = new EventQueue<>();
-		TypedYielder input = TypedYielder.wrap(JsonEvent.class.getName(),
+		EventQueue<JsonEvent> inputQueue = new EventQueue<>(JsonEvent.class);
+		TypedYielder input = TypedYielder.wrap(new EventType(JsonEvent.class),
 				inputQueue);
 		Map<String, TypedYielder> context = new HashMap<>();
 		context.put(ConfigReader.LAST_SOURCE, input);
@@ -79,7 +80,7 @@ public class DateTest {
 						context);
 
 		Collector<JsonEvent> c = new Collector<>();
-		Yielder<JsonEvent> y = ts.getTypesafe(JsonEvent.class.getName());
+		Yielder<JsonEvent> y = ts.getTypesafe(new EventType(JsonEvent.class));
 		y.bind(c);
 		JsonEvent in2 = new JsonEvent();
 		in2.put("time", "1404125501001");

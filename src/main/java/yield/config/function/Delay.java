@@ -12,12 +12,14 @@ import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
+import yield.core.Yielder;
 import yield.core.queues.DelayedQueue;
 
 @ShortDocumentation(text = "Delays events by the given time.")
 public class Delay extends FunctionConfig {
-
-	private String type;
+	@Nonnull
+	private EventType type = EventType.ALL;
 
 	@Override
 	@Nonnull
@@ -38,16 +40,18 @@ public class Delay extends FunctionConfig {
 						+ " not supported. Valid are: "
 						+ Arrays.asList(TimeUnit.values()));
 			}
-			TypedYielder input = context.get(ConfigReader.LAST_SOURCE);
-			this.type = input.type;
+			Yielder<Object> input = getYielderTypesafe(Object.class,
+					ConfigReader.LAST_SOURCE, context);
+			this.type = input.getOutputType();
 			DelayedQueue<Object> delayed = new DelayedQueue<>(value, unit);
-			input.yielder.bind(delayed);
+			input.bind(delayed);
 			return wrapResultingYielder(delayed);
 		}
 	}
 
 	@Override
-	protected String getResultEventType() {
+	@Nonnull
+	protected EventType getResultEventType() {
 		return this.type;
 	}
 }

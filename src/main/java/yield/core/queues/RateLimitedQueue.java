@@ -44,6 +44,8 @@ public class RateLimitedQueue<EventType> extends EventQueue<EventType> {
 
 	public RateLimitedQueue(long inactiveDuration, TimeUnit delayUnit,
 			boolean postDiscardState) {
+		super(yield.core.EventType.ALL);
+
 		this.postDiscardState = postDiscardState;
 		this.inactiveDuration = delayUnit.toNanos(inactiveDuration);
 		this.schedulerPool = Executors.newScheduledThreadPool(1);

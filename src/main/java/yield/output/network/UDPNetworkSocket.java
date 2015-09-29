@@ -8,8 +8,11 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
+import javax.annotation.Nonnull;
+
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
+import yield.core.EventType;
 import yield.input.ListenerExceutionFailed;
 
 /**
@@ -40,5 +43,11 @@ public class UDPNetworkSocket extends BaseControlQueueProvider implements
 		} catch (IOException e1) {
 			this.getControlQueue().feed(new ListenerExceutionFailed<>(e, e1));
 		}
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return new EventType(String.class);
 	}
 }

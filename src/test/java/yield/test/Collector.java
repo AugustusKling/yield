@@ -3,8 +3,11 @@ package yield.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
+import yield.core.EventType;
 
 public class Collector<Event> extends BaseControlQueueProvider implements
 		EventListener<Event> {
@@ -39,5 +42,11 @@ public class Collector<Event> extends BaseControlQueueProvider implements
 
 	public Event getLast() {
 		return all.get(all.size() - 1);
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return EventType.ALL;
 	}
 }

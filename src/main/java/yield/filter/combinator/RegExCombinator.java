@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.SourceProvider;
 
 /**
@@ -23,7 +24,7 @@ public class RegExCombinator extends BaseControlQueueProvider implements
 	private StringBuilder collection = null;
 	private Pattern p;
 	@Nonnull
-	private final EventQueue<String> queue = new EventQueue<>();
+	private final EventQueue<String> queue = new EventQueue<>(String.class);
 
 	/**
 	 * Further events to be merged are awaited to a maximum of {@link #maxIdle}
@@ -83,5 +84,11 @@ public class RegExCombinator extends BaseControlQueueProvider implements
 	@Nonnull
 	public EventQueue<String> getQueue() {
 		return queue;
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return new EventType(String.class);
 	}
 }

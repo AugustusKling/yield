@@ -11,6 +11,7 @@ import yield.config.TypedYielder;
 import yield.config.function.where.Expr;
 import yield.config.function.where.ExprLiteral;
 import yield.config.function.where.FilterParser;
+import yield.core.EventType;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
 import yield.core.Yielder;
@@ -67,13 +68,14 @@ public class Mutate extends FunctionConfig {
 						}
 						return copy;
 					}
-				});
+				}, JsonEvent.class, JsonEvent.class);
 		yielder.bind(mapper);
 		return wrapResultingYielder(mapper.getQueue());
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return JsonEvent.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(JsonEvent.class);
 	}
 }

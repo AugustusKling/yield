@@ -13,6 +13,8 @@ import yield.core.EventQueue;
  */
 public class UDPNetworkSocket extends EventQueue<String> {
 	public UDPNetworkSocket(final String host, final int port) {
+		super(String.class);
+
 		new Thread() {
 			@Override
 			public void run() {
@@ -20,7 +22,7 @@ public class UDPNetworkSocket extends EventQueue<String> {
 					InetAddress group = InetAddress.getByName(host);
 					socket.joinGroup(group);
 					while (true) {
-						byte[] buf = new byte[1024];
+						byte[] buf = new byte[8192];
 						DatagramPacket packet = new DatagramPacket(buf,
 								buf.length);
 						socket.receive(packet);

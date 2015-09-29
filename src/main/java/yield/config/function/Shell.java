@@ -14,6 +14,7 @@ import yield.config.TypedYielder;
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.Yielder;
 import yield.core.event.MetaEvent;
 import yield.json.JsonEvent;
@@ -55,6 +56,13 @@ public class Shell extends FunctionConfig {
 			}
 			this.shellQueue.feedBoundQueues(output);
 		}
+
+		@Override
+		@Nonnull
+		public EventType getInputType() {
+			return new EventType(MetaEvent.class).withGeneric(new EventType(
+					String.class));
+		}
 	}
 
 	/**
@@ -66,6 +74,7 @@ public class Shell extends FunctionConfig {
 
 		public ShellQueue(Path workingDirectory,
 				ArrayList<String> commandTemplate) {
+			super(JsonEvent.class);
 			this.workingDirectory = workingDirectory;
 			this.commandTemplate = commandTemplate;
 		}
@@ -105,7 +114,8 @@ public class Shell extends FunctionConfig {
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return JsonEvent.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(JsonEvent.class);
 	}
 }

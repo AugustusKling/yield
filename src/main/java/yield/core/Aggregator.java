@@ -1,5 +1,7 @@
 package yield.core;
 
+import javax.annotation.Nonnull;
+
 /**
  * Aggregates a series of events and publishes result to a queue.
  * 
@@ -8,7 +10,11 @@ package yield.core;
  */
 public abstract class Aggregator<T, Out> implements SourceProvider<Out> {
 
-	protected final EventQueue<Out> queue = new EventQueue<>();
+	protected final EventQueue<Out> queue;
+
+	public Aggregator(@Nonnull EventType outType) {
+		queue = new EventQueue<>(outType);
+	}
 
 	/**
 	 * Calculates aggregate and pushes result to queue.

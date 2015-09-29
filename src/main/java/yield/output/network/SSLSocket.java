@@ -10,6 +10,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -19,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
+import yield.core.EventType;
 import yield.input.ListenerExceutionFailed;
 
 /**
@@ -65,6 +67,12 @@ public class SSLSocket extends BaseControlQueueProvider implements
 					new ListenerExceutionFailed<>(e, "Could not send event.",
 							e1));
 		}
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return new EventType(String.class);
 	}
 
 }

@@ -2,6 +2,7 @@ package yield.test;
 
 import yield.core.Aggregator;
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.Filter;
 import yield.core.Producer;
 import yield.core.Query;
@@ -12,7 +13,7 @@ import yield.output.Printer;
 public class Test {
 
 	public static void main(String[] args) {
-		EventQueue<LogEvent> inOne = new EventQueue<>();
+		EventQueue<LogEvent> inOne = new EventQueue<>(LogEvent.class);
 		inOne.feed(new LogEvent("holla"));
 		inOne.bind(new Printer<LogEvent>("p1"));
 		inOne.bind(new Printer<LogEvent>("p2"));
@@ -43,8 +44,8 @@ public class Test {
 
 			@Override
 			public Aggregator<LogEvent, LogEvent> make() {
-				return new Aggregator<LogEvent, LogEvent>() {
-
+				return new Aggregator<LogEvent, LogEvent>(new EventType(
+						LogEvent.class)) {
 					@Override
 					protected void aggregate(Iterable<LogEvent> events) {
 						StringBuilder compound = new StringBuilder();
@@ -66,7 +67,7 @@ public class Test {
 		inOne.feed(new LogEvent("sdsfaout"));
 		inOne.feed(new LogEvent("aggtest"));
 
-		Counter<LogEvent> counter = new Counter<LogEvent>();
+		Counter<LogEvent> counter = new Counter<LogEvent>(LogEvent.class);
 		new Query<>(counter).filter(new Filter<LogEvent>() {
 
 			@Override

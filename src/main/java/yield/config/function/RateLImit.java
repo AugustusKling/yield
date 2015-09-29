@@ -49,9 +49,11 @@ public class RateLImit extends FunctionConfig {
 
 		RateLimitedQueue<Object> rateLimited = new RateLimitedQueue<>(
 				inactiveDuration, TimeUnit.SECONDS, postDiscardState);
-		context.get(ConfigReader.LAST_SOURCE).yielder.bind(rateLimited);
+		getYielderTypesafe(Object.class, ConfigReader.LAST_SOURCE, context)
+				.bind(rateLimited);
 
-		final EventQueue<Object> ordinaryEventAndRateExceeded = new EventQueue<>();
+		final EventQueue<Object> ordinaryEventAndRateExceeded = new EventQueue<>(
+				Object.class);
 		rateLimited.bind(ordinaryEventAndRateExceeded);
 		rateLimited.getControlQueue().bind(new ControlQueue() {
 			@Override

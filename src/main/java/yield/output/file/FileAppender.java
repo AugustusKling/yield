@@ -4,8 +4,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import javax.annotation.Nonnull;
+
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
+import yield.core.EventType;
 import yield.input.ListenerExceutionFailed;
 
 /**
@@ -14,8 +17,8 @@ import yield.input.ListenerExceutionFailed;
  * @param <Event>
  *            Type of incoming events.
  */
-public class FileAppender<Event> extends BaseControlQueueProvider implements
-		EventListener<Event> {
+public class FileAppender<Event extends CharSequence> extends
+		BaseControlQueueProvider implements EventListener<Event> {
 	private Path file;
 
 	public FileAppender(Path file) {
@@ -31,6 +34,12 @@ public class FileAppender<Event> extends BaseControlQueueProvider implements
 					new ListenerExceutionFailed<>(e,
 							"Could not append to file.", e1));
 		}
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return new EventType(CharSequence.class);
 	}
 
 }

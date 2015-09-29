@@ -1,5 +1,6 @@
 package yield.core;
 
+import javax.annotation.Nonnull;
 
 /**
  * Any object that might emit an event.
@@ -13,4 +14,9 @@ public interface Yielder<OutEvent> extends ControlQueueProvider {
 	 */
 	public void bind(EventListener<OutEvent> listener);
 
+	/**
+	 * @return Type of event that this yielder emits.
+	 */
+	@Nonnull
+	EventType getOutputType();
 }

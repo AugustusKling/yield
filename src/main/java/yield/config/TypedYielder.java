@@ -2,6 +2,7 @@ package yield.config;
 
 import javax.annotation.Nonnull;
 
+import yield.core.EventType;
 import yield.core.Yielder;
 
 /**
@@ -9,15 +10,17 @@ import yield.core.Yielder;
  */
 public class TypedYielder {
 	/**
-	 * Type of yielded event. Stored as {@link String} so it can survive Java's
-	 * type erasure.
+	 * Type of yielded event. Stored as {@link EventType} so it can survive
+	 * Java's type erasure.
 	 */
-	public final String type;
-
 	@Nonnull
-	public final Yielder<Object> yielder;
+	public final EventType type;
 
-	public TypedYielder(String type, Yielder<Object> yielder) {
+	@SuppressWarnings("rawtypes")
+	@Nonnull
+	public final Yielder yielder;
+
+	public TypedYielder(@Nonnull EventType type, Yielder<?> yielder) {
 		this.type = type;
 		if (yielder == null) {
 			throw new IllegalArgumentException("Yielder wasn't provided.");
@@ -30,11 +33,9 @@ public class TypedYielder {
 		return ":" + type;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Nonnull
-	public static TypedYielder wrap(String type,
-			Yielder<? extends Object> yielder) {
-		return new TypedYielder(type, (Yielder<Object>) yielder);
+	public static TypedYielder wrap(@Nonnull EventType type, Yielder<?> yielder) {
+		return new TypedYielder(type, yielder);
 	}
 
 	/**
@@ -42,17 +43,14 @@ public class TypedYielder {
 	 * 
 	 * @param requiredType
 	 *            Required event type of {@link Yielder}.
-	 * @param yielderName
-	 *            Identifier in given {@code context}.
-	 * @param context
-	 *            All known {@link Yielder}s.
-	 * @return Matching {@link Yielder} from {@code context}.
+	 * @return Matching {@link Yielder}.
 	 */
 	@SuppressWarnings("unchecked")
 	@Nonnull
-	public <RequiredType> Yielder<RequiredType> getTypesafe(String requiredType) {
-		if (this.type.equals(requiredType)) {
-			return (Yielder<RequiredType>) this.yielder;
+	public <RequiredType> Yielder<RequiredType> getTypesafe(
+			EventType requiredType) {
+		if (this.type.isUsableAs(requiredType)) {
+			return this.yielder;
 		} else {
 			throw new RuntimeException("Requires " + requiredType
 					+ " but yielder is of type " + this.type);

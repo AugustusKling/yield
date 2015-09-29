@@ -3,6 +3,8 @@ package yield.core;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 /**
  * Event store with retention policy. Events are not persisted forever but kept
  * in a sliding, not necessarily ordered or fixed-size, window.
@@ -33,5 +35,11 @@ public abstract class Window<T> extends BaseControlQueueProvider implements
 	 */
 	public void bind(Aggregator<T, ?> agg) {
 		listeners.add(agg);
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return EventType.ALL;
 	}
 }

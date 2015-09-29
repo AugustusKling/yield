@@ -1,5 +1,7 @@
 package yield.test;
 
+import javax.annotation.Nonnull;
+
 import yield.core.EventQueue;
 import yield.core.SourceProvider;
 
@@ -14,7 +16,11 @@ public class Counter<T> implements SourceProvider<T> {
 
 	}
 
-	protected final EventQueue<T> queue = new EventQueue<>();
+	protected final EventQueue<T> queue;
+
+	public Counter(@Nonnull Class<T> outType) {
+		queue = new EventQueue<>(outType);
+	}
 
 	@Override
 	public EventQueue<T> getQueue() {

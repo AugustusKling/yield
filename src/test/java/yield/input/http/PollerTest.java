@@ -3,9 +3,13 @@ package yield.input.http;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.annotation.Nonnull;
+
 import org.junit.Test;
 
 import yield.core.Aggregator;
+import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.Producer;
 import yield.core.Query;
 import yield.core.QueueMapper;
@@ -20,6 +24,9 @@ public class PollerTest {
 		Poller poller = new Poller(new URL("http://github.com/"), 3000);
 		Query<Double> q = new Query<>(poller).map(
 				new QueueMapper<MetaEvent<FileTransfer>, Long>() {
+					@Nonnull
+					private EventQueue<Long> queue = new EventQueue<>(
+							Long.class);
 
 					@Override
 					protected Long map(MetaEvent<FileTransfer> e) {
@@ -28,6 +35,12 @@ public class PollerTest {
 						} catch (Exception e1) {
 							return 0L;
 						}
+					}
+
+					@Override
+					@Nonnull
+					public EventQueue<Long> getQueue() {
+						return this.queue;
 					}
 				}).within(new Producer<Window<Long>>() {
 
@@ -39,7 +52,7 @@ public class PollerTest {
 
 			@Override
 			public Aggregator<Long, Double> make() {
-				return new Aggregator<Long, Double>() {
+				return new Aggregator<Long, Double>(new EventType(Double.class)) {
 
 					@Override
 					protected void aggregate(Iterable<Long> events) {

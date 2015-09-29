@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 
 @ShortDocumentation(text = "Reads from standard input (console).")
 public class Stdin extends FunctionConfig {
@@ -17,7 +18,8 @@ public class Stdin extends FunctionConfig {
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return String.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(String.class);
 	}
 }

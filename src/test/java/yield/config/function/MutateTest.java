@@ -9,6 +9,7 @@ import org.junit.Test;
 import yield.config.ConfigReader;
 import yield.config.TypedYielder;
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
 import yield.test.Collector;
@@ -16,8 +17,8 @@ import yield.test.Collector;
 public class MutateTest {
 	@Test
 	public void parse() {
-		EventQueue<JsonEvent> inputQueue = new EventQueue<>();
-		TypedYielder input = TypedYielder.wrap(JsonEvent.class.getName(),
+		EventQueue<JsonEvent> inputQueue = new EventQueue<>(JsonEvent.class);
+		TypedYielder input = TypedYielder.wrap(new EventType(JsonEvent.class),
 				inputQueue);
 		Map<String, TypedYielder> context = new HashMap<>();
 		context.put(ConfigReader.LAST_SOURCE, input);
@@ -25,7 +26,7 @@ public class MutateTest {
 		Collector<JsonEvent> results = new Collector<>();
 		TypedYielder m = new Mutate().getSource(
 				"+greeting \"Hoi, \" :: name :: \"!\"", context);
-		Yielder<JsonEvent> y = m.getTypesafe(JsonEvent.class.getName());
+		Yielder<JsonEvent> y = m.getTypesafe(new EventType(JsonEvent.class));
 		y.bind(results);
 
 		inputQueue.feed(new JsonEvent("{\"name\":\"Anna\"}"));

@@ -8,6 +8,7 @@ import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
 import yield.core.Yielder;
@@ -21,14 +22,15 @@ public class ToText extends FunctionConfig {
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
 		Yielder<? extends Object> yielder;
 		if (args.isEmpty()) {
-			Yielder<Object> input = context.get(ConfigReader.LAST_SOURCE).yielder;
+			Yielder<Object> input = getYielderTypesafe(Object.class,
+					ConfigReader.LAST_SOURCE, context);
 			MappedQueue<Object, String> mapping = new MappedQueue<>(
 					new ValueMapper<Object, String>() {
 						@Override
 						public String map(Object value) {
 							return value.toString();
 						}
-					});
+					}, Object.class, String.class);
 			input.bind(mapping);
 			yielder = mapping.getQueue();
 		} else {
@@ -41,7 +43,7 @@ public class ToText extends FunctionConfig {
 							public String map(JsonEvent value) {
 								return template.apply(value);
 							}
-						});
+						}, JsonEvent.class, String.class);
 				getYielderTypesafe(JsonEvent.class, ConfigReader.LAST_SOURCE,
 						context).bind(mapping);
 				yielder = mapping.getQueue();
@@ -55,7 +57,8 @@ public class ToText extends FunctionConfig {
 	}
 
 	@Override
-	public String getResultEventType() {
-		return String.class.getName();
+	@Nonnull
+	public EventType getResultEventType() {
+		return new EventType(String.class);
 	}
 }

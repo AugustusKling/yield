@@ -17,6 +17,7 @@ import org.codehaus.jparsec.functors.Pair;
 import org.codehaus.jparsec.pattern.Patterns;
 
 import yield.config.ParameterMap.Param;
+import yield.core.EventType;
 import yield.core.Yielder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,8 +61,9 @@ public abstract class FunctionConfig {
 	 * @return Type of yielded events. For example
 	 *         {@code java.util.Map<java.lang.String,java.lang.Object>}
 	 */
-	protected String getResultEventType() {
-		return "java.lang.Object";
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(Object.class);
 	}
 
 	@Nonnull
@@ -84,11 +86,11 @@ public abstract class FunctionConfig {
 	@SuppressWarnings("unchecked")
 	@Nonnull
 	protected <RequiredType> Yielder<RequiredType> getYielderTypesafe(
-			String requiredType, String yielderName,
+			EventType requiredType, String yielderName,
 			Map<String, TypedYielder> context) {
 		TypedYielder typedYielder = context.get(yielderName);
-		if (typedYielder.type.equals(requiredType)) {
-			return (Yielder<RequiredType>) typedYielder.yielder;
+		if (typedYielder.type.isUsableAs(requiredType)) {
+			return typedYielder.yielder;
 		} else {
 			throw new RuntimeException("Requires " + requiredType + " but "
 					+ yielderName + " yields events of type "
@@ -97,13 +99,14 @@ public abstract class FunctionConfig {
 	}
 
 	/**
-	 * @see #getYielderTypesafe(String, String, Map)
+	 * @see #getYielderTypesafe(EventType, String, Map)
 	 */
 	@Nonnull
 	protected <RequiredType> Yielder<RequiredType> getYielderTypesafe(
 			Class<RequiredType> requiredType, String yielderName,
 			Map<String, TypedYielder> context) {
-		return getYielderTypesafe(requiredType.getName(), yielderName, context);
+		return getYielderTypesafe(new EventType(requiredType), yielderName,
+				context);
 	}
 
 	/**

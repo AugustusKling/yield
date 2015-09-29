@@ -3,6 +3,8 @@ package yield.core;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,7 +42,24 @@ public abstract class EventSource<Event> extends BaseControlQueueProvider
 
 	@Override
 	public void bind(EventListener<Event> listener) {
-		listeners.add(listener);
+		if (getOutputType().isUsableAs(listener.getInputType())) {
+			listeners.add(listener);
+		} else {
+			throw new RuntimeException(
+					"Failed to bind lister as its input type "
+							+ listener.getInputType()
+							+ " is incompatible with this source's output type "
+							+ this.getOutputType());
+		}
+	}
+
+	/**
+	 * Type of event that this source yields.
+	 */
+	@Override
+	@Nonnull
+	public EventType getOutputType() {
+		return EventType.ALL;
 	}
 
 }

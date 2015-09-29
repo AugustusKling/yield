@@ -15,6 +15,7 @@ import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.config.function.where.Expr;
 import yield.config.function.where.FilterParser;
+import yield.core.EventType;
 import yield.core.MappedQueue;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
@@ -72,11 +73,13 @@ public class Timestamp extends FunctionConfig {
 		}
 
 		MappedQueue<JsonEvent, JsonEvent> results = new MappedQueue<>(
-				new TimestampQueue(pattern, locale, base, source));
+				new TimestampQueue(pattern, locale, base, source),
+				JsonEvent.class, JsonEvent.class);
 		Yielder<JsonEvent> input = getYielderTypesafe(JsonEvent.class,
 				ConfigReader.LAST_SOURCE, context);
 		input.bind(results);
-		return TypedYielder.wrap(JsonEvent.class.getName(), results.getQueue());
+		return TypedYielder.wrap(new EventType(JsonEvent.class),
+				results.getQueue());
 	}
 
 }

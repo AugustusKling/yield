@@ -10,6 +10,7 @@ import yield.config.ConfigReader;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.Aggregator;
+import yield.core.EventType;
 import yield.core.Producer;
 import yield.core.Query;
 import yield.core.Window;
@@ -33,7 +34,8 @@ public class Average extends AggregateFunctionConfig<Number> {
 
 					@Override
 					public Aggregator<Number, Number> make() {
-						return new Aggregator<Number, Number>() {
+						return new Aggregator<Number, Number>(new EventType(
+								Number.class)) {
 
 							@Override
 							protected void aggregate(Iterable<Number> events) {
@@ -59,7 +61,8 @@ public class Average extends AggregateFunctionConfig<Number> {
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return Number.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(Number.class);
 	}
 }

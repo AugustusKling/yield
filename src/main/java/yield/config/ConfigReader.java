@@ -30,6 +30,7 @@ import yield.config.function.Watch;
 import yield.config.function.Where;
 import yield.core.EventListener;
 import yield.core.EventQueue;
+import yield.core.EventType;
 
 /**
  * Parses configuration, creates queues.
@@ -55,7 +56,7 @@ public class ConfigReader {
 	public static final String LAST_SOURCE = "previous";
 
 	private static final TypedYielder dummyYielder = new TypedYielder(
-			Void.class.getName(), new EventQueue<Object>() {
+			EventType.ALL, new EventQueue<Object>(Object.class) {
 				@Override
 				public void bind(EventListener<Object> listener) {
 					throw new RuntimeException(
@@ -230,6 +231,8 @@ public class ConfigReader {
 		// pretty hacky.
 		int consoleWidth = 200;
 		for (Entry<String, FunctionConfig> func : functions2.entrySet()) {
+			@SuppressWarnings("null")
+			@Nonnull
 			String classDocumentation = func.getKey();
 			ShortDocumentation shortDocumentation = func.getValue().getClass()
 					.getAnnotation(ShortDocumentation.class);
@@ -241,6 +244,7 @@ public class ConfigReader {
 			}
 			printBlock(0, 1, classDocumentation, consoleWidth);
 
+			@SuppressWarnings("unchecked")
 			Class<? extends Parameter> paramClass = (Class<? extends Parameter>) func
 					.getValue().getParameters();
 			if (paramClass != null) {

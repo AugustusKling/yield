@@ -14,12 +14,13 @@ import yield.input.ListenerExecutionAborted;
  * Monitors a single file for changes. This is basically a tail operation.
  */
 public class FileInput implements SourceProvider<String> {
-	private EventQueue<String> queue = new EventQueue<>();
+	private EventQueue<String> queue = new EventQueue<>(String.class);
 
 	private Path file;
 
 	/**
-	 * Creates stale object that needs activation via {@link #read(Path)}.
+	 * Creates stale object that needs activation via
+	 * {@link #read(boolean, boolean, Charset)}.
 	 * 
 	 * @param file
 	 *            File to watch which holds an event per line.

@@ -1,5 +1,7 @@
 package yield.core;
 
+import javax.annotation.Nonnull;
+
 import yield.core.partition.PartitionedEntry;
 
 /**
@@ -34,8 +36,9 @@ public class Query<T> implements SourceProvider<T> {
 	}
 
 	public <O, Out> Query<Out> join(Yielder<O> other,
-			final Joiner<T, O, Out> joiner) {
-		Join<T, O, Out> join = new Join<T, O, Out>(this.getQueue(), other) {
+			final Joiner<T, O, Out> joiner, @Nonnull EventType outType) {
+		Join<T, O, Out> join = new Join<T, O, Out>(this.getQueue(), other,
+				outType) {
 
 			@Override
 			public Out join(T lastValue, O lastValue2) {
@@ -53,9 +56,10 @@ public class Query<T> implements SourceProvider<T> {
 	public <Key, Out> Query<PartitionedEntry<Key, Out>> partition(
 			Producer<Window<T>> windowProducer,
 			Producer<Aggregator<T, Out>> aggregatorProducer,
-			ValueMapper<T, Key> grouper) {
+			ValueMapper<T, Key> grouper, @Nonnull EventType in,
+			@Nonnull EventType key, @Nonnull EventType out) {
 		Partitioner<T, Key, Out> partitioner = new Partitioner<>(
-				windowProducer, aggregatorProducer, grouper);
+				windowProducer, aggregatorProducer, grouper, in, key, out);
 		queue.bind(partitioner);
 		return new Query<>(partitioner);
 	}

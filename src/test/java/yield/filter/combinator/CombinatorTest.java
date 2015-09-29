@@ -36,11 +36,12 @@ public class CombinatorTest {
 					public JsonEvent map(String value) {
 						return new JsonEvent(value);
 					}
-				});
+				}, String.class, JsonEvent.class);
 		combinator.getQueue().bind(input);
 		MappedQueue<JsonEvent, JsonEvent> parser = new MappedQueue<>(
 				new JsonGrok("message",
-						"^(?<time>[^ ]+) (?<level>\\w+)\\s+\\[(?<module>[^\\]]+)\\] (?<message>.+)$"));
+						"^(?<time>[^ ]+) (?<level>\\w+)\\s+\\[(?<module>[^\\]]+)\\] (?<message>.+)$"),
+				JsonEvent.class, JsonEvent.class);
 		input.getQueue().bind(parser);
 
 		// TODO Move to appropriate place.
@@ -65,19 +66,27 @@ public class CombinatorTest {
 						}
 						return value;
 					}
-				});
+				}, JsonEvent.class, JsonEvent.class);
 		parser.getQueue().bind(timeGuesser);
 
 		Collector<JsonEvent> colCombined = new Collector<>();
 		parser.getQueue().bind(colCombined);
 
-		FileAppender<JsonEvent> writer = new FileAppender<JsonEvent>(Files
-				.createTempFile(null, null).toAbsolutePath());
-		parser.getQueue().bind(writer);
+		MappedQueue<JsonEvent, String> toText = new MappedQueue<>(
+				new ValueMapper<JsonEvent, String>() {
+					@Override
+					public String map(JsonEvent value) {
+						return value.toString();
+					}
+				}, JsonEvent.class, String.class);
+		parser.getQueue().bind(toText);
 
-		Files.write(inputFile,
-				"123 INFO [dummy] message\n".getBytes(StandardCharsets.UTF_8),
-				StandardOpenOption.APPEND);
+		FileAppender<String> writer = new FileAppender<String>(Files
+				.createTempFile(null, null).toAbsolutePath());
+		toText.getQueue().bind(writer);
+
+		Files.write(inputFile, "20:51:53,123 INFO [dummy] message\n"
+				.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
 		Files.write(inputFile,
 				" message to be combined".getBytes(StandardCharsets.UTF_8),
 				StandardOpenOption.APPEND);

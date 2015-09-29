@@ -8,6 +8,7 @@ import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 import yield.core.Yielder;
 import yield.filter.combinator.RegExCombinator;
 
@@ -16,7 +17,7 @@ public class Combine extends FunctionConfig {
 	@Override
 	@Nonnull
 	public TypedYielder getSource(String args, Map<String, TypedYielder> context) {
-		Yielder<String> yielder = getYielderTypesafe(String.class.getName(),
+		Yielder<String> yielder = getYielderTypesafe(String.class,
 				ConfigReader.LAST_SOURCE, context);
 		String pattern;
 		if (args.isEmpty()) {
@@ -30,8 +31,9 @@ public class Combine extends FunctionConfig {
 	}
 
 	@Override
-	public String getResultEventType() {
-		return String.class.getName();
+	@Nonnull
+	public EventType getResultEventType() {
+		return new EventType(String.class);
 	}
 
 }

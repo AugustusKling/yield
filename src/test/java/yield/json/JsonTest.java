@@ -27,16 +27,28 @@ public class JsonTest {
 					public JsonEvent map(String value) {
 						return new JsonEvent(value);
 					}
-				});
+				}, String.class, JsonEvent.class);
 		MappedQueue<JsonEvent, JsonEvent> parser = new MappedQueue<>(
 				new JsonGrok("message",
-						"^(?<time>[^ ]+) \\[(?<module>[^\\]]+)\\] (?<level>\\w+) (?<message>.+)$"));
+						"^(?<time>[^ ]+) \\[(?<module>[^\\]]+)\\] (?<level>\\w+) (?<message>.+)$"),
+				JsonEvent.class, JsonEvent.class);
 		input.getQueue().bind(parser);
 
 		Collector<JsonEvent> occurs = new Collector<>();
 		parser.getQueue().bind(occurs);
-		parser.getQueue().bind(
-				new FileAppender<JsonEvent>(Paths.get("/tmp/jsonout")));
+
+		MappedQueue<JsonEvent, String> toText = new MappedQueue<>(
+				new ValueMapper<JsonEvent, String>() {
+					@Override
+					public String map(JsonEvent value) {
+						return value.toString();
+					}
+				}, JsonEvent.class, String.class);
+
+		parser.getQueue().bind(toText);
+
+		toText.getQueue().bind(
+				new FileAppender<String>(Paths.get("/tmp/jsonout")));
 
 		for (String line : inputs) {
 			input.feed(line);

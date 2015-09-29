@@ -7,11 +7,12 @@ import javax.annotation.Nonnull;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 
 @ShortDocumentation(text = "Switches context to given yielder.")
 public class Listen extends FunctionConfig {
-
-	private String resultEventType = Object.class.getName();
+	@Nonnull
+	private EventType resultEventType = new EventType(Object.class);
 
 	@Override
 	@Nonnull
@@ -27,7 +28,8 @@ public class Listen extends FunctionConfig {
 	}
 
 	@Override
-	protected String getResultEventType() {
+	@Nonnull
+	protected EventType getResultEventType() {
 		return this.resultEventType;
 	}
 }

@@ -28,7 +28,7 @@ public class Pattern {
 			}
 		});
 
-		EventQueue<String> q = new EventQueue<String>();
+		EventQueue<String> q = new EventQueue<>(String.class);
 		q.bind(firstAAnythingB);
 
 		Collector<String> results = new Collector<>();

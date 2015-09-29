@@ -23,7 +23,8 @@ public class DirectoryWatcher implements SourceProvider<DirectoryEvent> {
 
 	private static class KeyLoop extends Thread implements
 			SourceProvider<DirectoryEvent> {
-		private final EventQueue<DirectoryEvent> queue = new EventQueue<>();
+		private final EventQueue<DirectoryEvent> queue = new EventQueue<>(
+				DirectoryEvent.class);
 
 		private Path path;
 		private WatchService watcher;

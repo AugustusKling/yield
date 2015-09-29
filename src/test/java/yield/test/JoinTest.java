@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.Join;
 import yield.core.Joiner;
 import yield.core.Query;
@@ -15,10 +16,10 @@ public class JoinTest {
 
 	@Test
 	public void testSimpleJoin() {
-		EventQueue<String> queueA = new EventQueue<>();
-		EventQueue<String> queueB = new EventQueue<>();
+		EventQueue<String> queueA = new EventQueue<>(String.class);
+		EventQueue<String> queueB = new EventQueue<>(String.class);
 		EventQueue<List<String>> joined = new Join<String, String, List<String>>(
-				queueA, queueB) {
+				queueA, queueB, new EventType(String.class)) {
 
 			@Override
 			public List<String> join(String lastValue, String lastValue2) {
@@ -46,8 +47,8 @@ public class JoinTest {
 
 	@Test
 	public void testQuery() {
-		EventQueue<String> queueA = new EventQueue<>();
-		EventQueue<String> queueB = new EventQueue<>();
+		EventQueue<String> queueA = new EventQueue<>(String.class);
+		EventQueue<String> queueB = new EventQueue<>(String.class);
 
 		Query<List<String>> query = new Query<>(queueA).join(queueB,
 				new Joiner<String, String, List<String>>() {
@@ -57,7 +58,7 @@ public class JoinTest {
 						return JoinTest.this.join(lastValue, lastValue2);
 					}
 
-				});
+				}, new EventType(List.class).withGeneric(String.class));
 
 		Collector<List<String>> occurs = new Collector<>();
 		query.getQueue().bind(occurs);

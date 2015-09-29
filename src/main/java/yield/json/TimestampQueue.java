@@ -147,7 +147,7 @@ public class TimestampQueue implements ValueMapper<JsonEvent, JsonEvent> {
 				}
 			}
 		} else {
-			logger.error("Failed to parse date.");
+			logger.error("Failed to parse date: " + input);
 		}
 		return value;
 	}

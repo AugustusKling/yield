@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import yield.core.Aggregator;
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.Producer;
 import yield.core.Query;
 import yield.core.ValueMapper;
@@ -45,9 +46,12 @@ public class Partition {
 
 	@Test
 	public void test() {
-		EventQueue<Event> queue = new EventQueue<>();
+		EventQueue<Event> queue = new EventQueue<>(Event.class);
 		Producer<Aggregator<Event, Event>> sum = new Producer<Aggregator<Event, Event>>() {
 			class SumValue extends Aggregator<Event, Event> {
+				public SumValue() {
+					super(new EventType(Event.class));
+				}
 
 				@Override
 				protected void aggregate(Iterable<Event> events) {
@@ -75,7 +79,9 @@ public class Partition {
 							public String map(Event value) {
 								return value.group;
 							}
-						}).getQueue();
+						}, new EventType(Event.class),
+						new EventType(String.class),
+						new EventType(Integer.class)).getQueue();
 
 		Collector<PartitionedEntry<String, Event>> occurs = new Collector<PartitionedEntry<String, Event>>();
 		results.bind(occurs);

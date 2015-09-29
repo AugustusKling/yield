@@ -15,6 +15,7 @@ import yield.config.ParameterMap;
 import yield.config.ParameterMap.Param;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 import yield.core.MappedQueue;
 import yield.core.ValueMapper;
 import yield.input.directory.DirectoryEvent;
@@ -28,7 +29,9 @@ import yield.json.JsonEvent;
  */
 @ShortDocumentation(text = "Watches files or directories for modifications.")
 public class Watch extends FunctionConfig {
-	private String resultType;
+	@Nonnull
+	private EventType resultType = new EventType(String.class)
+			.or(JsonEvent.class);
 
 	private static enum Parameters implements Param {
 		@ShortDocumentation(text = "File or directory to watch.")
@@ -102,7 +105,7 @@ public class Watch extends FunctionConfig {
 
 		Path watchable = Paths.get(options.path);
 		if (watchable.toFile().isDirectory() || options.path.endsWith("/")) {
-			this.resultType = JsonEvent.class.getName();
+			this.resultType = new EventType(JsonEvent.class);
 			try {
 				DirectoryWatcher watcher = new DirectoryWatcher(watchable);
 				MappedQueue<DirectoryEvent, JsonEvent> toJSON = new MappedQueue<>(
@@ -116,14 +119,14 @@ public class Watch extends FunctionConfig {
 										.toAbsolutePath().toString());
 								return event;
 							}
-						});
+						}, DirectoryEvent.class, JsonEvent.class);
 				watcher.getQueue().bind(toJSON);
 				return wrapResultingYielder(toJSON.getQueue());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		} else {
-			this.resultType = String.class.getName();
+			this.resultType = new EventType(String.class);
 			FileInput watcher = new FileInput(watchable.toAbsolutePath());
 			watcher.read(options.once, options.skip, options.encoding);
 			return wrapResultingYielder(watcher.getQueue());
@@ -131,7 +134,8 @@ public class Watch extends FunctionConfig {
 	}
 
 	@Override
-	protected String getResultEventType() {
+	@Nonnull
+	protected EventType getResultEventType() {
 		return this.resultType;
 	}
 

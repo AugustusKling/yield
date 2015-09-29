@@ -20,6 +20,8 @@ public class DelayedQueue<EventType> extends EventQueue<EventType> {
 	private long delay;
 
 	public DelayedQueue(long delay, TimeUnit delayUnit) {
+		super(yield.core.EventType.ALL);
+
 		this.delay = delayUnit.toNanos(delay);
 
 		Thread feeder = new Thread(getClass().getName() + " feeder") {

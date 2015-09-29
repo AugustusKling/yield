@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import yield.core.BaseControlQueueProvider;
 import yield.core.EventListener;
 import yield.core.EventQueue;
+import yield.core.EventType;
 import yield.core.SourceProvider;
 
 /**
@@ -24,7 +27,8 @@ public class Pattern<Event> extends BaseControlQueueProvider implements
 	/**
 	 * Output which publishes all state changes.
 	 */
-	private final EventQueue<String> stateChanges = new EventQueue<>();
+	private final EventQueue<String> stateChanges = new EventQueue<String>(
+			String.class);
 
 	/**
 	 * Possible transitions by current state.
@@ -82,5 +86,11 @@ public class Pattern<Event> extends BaseControlQueueProvider implements
 		} else {
 			return Collections.emptyList();
 		}
+	}
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return EventType.ALL;
 	}
 }

@@ -16,6 +16,7 @@ import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 import yield.core.Yielder;
 import yield.output.network.SSLSocket;
 
@@ -64,7 +65,8 @@ public class NetworkSend extends FunctionConfig {
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return String.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(String.class);
 	}
 }

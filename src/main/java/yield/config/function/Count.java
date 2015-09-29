@@ -9,6 +9,7 @@ import yield.config.ConfigReader;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
 import yield.core.Aggregator;
+import yield.core.EventType;
 import yield.core.Producer;
 import yield.core.Query;
 import yield.core.Window;
@@ -19,8 +20,8 @@ public class Count extends AggregateFunctionConfig<Object> {
 	@Nonnull
 	public TypedYielder getSource(final String args,
 			Map<String, TypedYielder> context) {
-		Query<Integer> query = new Query<>(
-				context.get(ConfigReader.LAST_SOURCE).yielder).within(
+		Query<Integer> query = new Query<>(getYielderTypesafe(Object.class,
+				ConfigReader.LAST_SOURCE, context)).within(
 				new Producer<Window<Object>>() {
 
 					@Override
@@ -38,7 +39,8 @@ public class Count extends AggregateFunctionConfig<Object> {
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return Integer.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(Integer.class);
 	}
 }

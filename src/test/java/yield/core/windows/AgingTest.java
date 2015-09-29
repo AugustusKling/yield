@@ -27,7 +27,7 @@ public class AgingTest {
 
 	@Test
 	public void test() throws InterruptedException {
-		EventQueue<String> dummies = new EventQueue<>();
+		EventQueue<String> dummies = new EventQueue<>(String.class);
 		final TestableAgingWindow testWindow = new TestableAgingWindow();
 		Query<Integer> windowLength = new Query<>(dummies).within(
 				new Producer<Window<String>>() {

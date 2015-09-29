@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 import yield.input.network.SSLServerSocket;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,7 +50,8 @@ public class NetworkListen extends FunctionConfig {
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return String.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(String.class);
 	}
 }

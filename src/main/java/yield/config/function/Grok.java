@@ -8,6 +8,7 @@ import yield.config.ConfigReader;
 import yield.config.FunctionConfig;
 import yield.config.ShortDocumentation;
 import yield.config.TypedYielder;
+import yield.core.EventType;
 import yield.core.MappedQueue;
 import yield.core.Yielder;
 import yield.json.JsonEvent;
@@ -26,13 +27,15 @@ public class Grok extends FunctionConfig {
 					"Expected property name followed by pattern with named groups.");
 		}
 		MappedQueue<JsonEvent, JsonEvent> grok = new MappedQueue<>(
-				new JsonGrok(parts[0], parts[1]));
+				new JsonGrok(parts[0], parts[1]), JsonEvent.class,
+				JsonEvent.class);
 		input.bind(grok);
 		return wrapResultingYielder(grok.getQueue());
 	}
 
 	@Override
-	protected String getResultEventType() {
-		return JsonEvent.class.getName();
+	@Nonnull
+	protected EventType getResultEventType() {
+		return new EventType(JsonEvent.class);
 	}
 }

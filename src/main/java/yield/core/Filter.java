@@ -11,7 +11,7 @@ public abstract class Filter<LogEvent> extends BaseControlQueueProvider
 	private final EventQueue<LogEvent> queue;
 
 	public Filter() {
-		this.queue = new EventQueue<LogEvent>();
+		this.queue = new EventQueue<LogEvent>(EventType.ALL);
 	}
 
 	@Override
@@ -35,4 +35,10 @@ public abstract class Filter<LogEvent> extends BaseControlQueueProvider
 	 * @return When {@code true} forward, when {@code false} discards.
 	 */
 	protected abstract boolean matches(LogEvent e);
+
+	@Override
+	@Nonnull
+	public EventType getInputType() {
+		return EventType.ALL;
+	}
 }

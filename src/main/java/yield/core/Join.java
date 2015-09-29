@@ -1,5 +1,6 @@
 package yield.core;
 
+import javax.annotation.Nonnull;
 
 /**
  * Combines queues such that an event is yielded which merges the newest events
@@ -27,14 +28,21 @@ public abstract class Join<InOne, InTwo, Out> implements SourceProvider<Out>,
 			emitJoined();
 		}
 
+		@Override
+		@Nonnull
+		public EventType getInputType() {
+			return EventType.ALL;
+		}
+
 	}
 
 	LastValue<InOne> valueOne = new LastValue<>();
 	LastValue<InTwo> valueTwo = new LastValue<>();
 	private final EventQueue<Out> queue;
 
-	public Join(Yielder<InOne> one, Yielder<InTwo> two) {
-		this.queue = new EventQueue<>();
+	public Join(Yielder<InOne> one, Yielder<InTwo> two,
+			@Nonnull EventType outType) {
+		this.queue = new EventQueue<>(outType);
 
 		one.bind(valueOne);
 		two.bind(valueTwo);
